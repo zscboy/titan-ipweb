@@ -718,17 +718,23 @@
                   "type": "array",
                   "items": {
                     "type": "object",
+                    "required": [
+                      "name",
+                      "id",
+                      "area",
+                      "socks5_server"
+                    ],
                     "properties": {
-                      "Area": {
+                      "area": {
                         "type": "string"
                       },
-                      "ID": {
+                      "id": {
                         "type": "string"
                       },
-                      "Name": {
+                      "name": {
                         "type": "string"
                       },
-                      "Socks5Server": {
+                      "socks5_server": {
                         "type": "string"
                       }
                     }
@@ -741,7 +747,7 @@
       }
     }
   },
-  "x-date": "2025-12-05 18:14:56",
+  "x-date": "2025-12-05 18:56:08",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
