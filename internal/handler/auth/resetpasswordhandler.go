@@ -3,10 +3,12 @@ package auth
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
+	"titan-ipweb/internal/handler/utils"
 	"titan-ipweb/internal/logic/auth"
 	"titan-ipweb/internal/svc"
 	"titan-ipweb/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // 重设密码
@@ -21,9 +23,9 @@ func ResetPasswordHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := auth.NewResetPasswordLogic(r.Context(), svcCtx)
 		resp, err := l.ResetPassword(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJsonCtx(r.Context(), w, utils.Error(err))
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			httpx.OkJsonCtx(r.Context(), w, utils.Success(resp))
 		}
 	}
 }

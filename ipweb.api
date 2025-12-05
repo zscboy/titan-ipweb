@@ -7,6 +7,15 @@ info (
 )
 
 type (
+	BaseResponse {
+		Code int64       `json:"code"`
+		Msg  string      `json:"msg"`
+		Time int64       `json:"time"`
+		Data interface{} `json:"data"`
+	}
+)
+
+type (
 	LoginRequest {
 		UserId     string `json:"user_id"`
 		Password   string `json:"password,optional"`
@@ -124,13 +133,13 @@ type (
 		Users []*SubUser
 	}
 	Pop {
-		Name         string
-		ID           string
-		Area         string
-		Socks5Server string
+		Name         string `json:"name"`
+		ID           string `json:"id"`
+		Area         string `json:"area"`
+		Socks5Server string `json:"socks5_server"`
 	}
 	ListPopsRespone {
-		pops []*Pop
+		pops []*Pop `json:"pops"`
 	}
 )
 

@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"titan-ipweb/internal/handler/utils"
 	"titan-ipweb/internal/logic"
 	"titan-ipweb/internal/svc"
 	"titan-ipweb/internal/types"
@@ -22,9 +23,9 @@ func DeleteSubUserHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := logic.NewDeleteSubUserLogic(r.Context(), svcCtx)
 		err := l.DeleteSubUser(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJsonCtx(r.Context(), w, utils.Error(err))
 		} else {
-			httpx.Ok(w)
+			httpx.OkJsonCtx(r.Context(), w, utils.Success(nil))
 		}
 	}
 }

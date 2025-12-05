@@ -3,6 +3,13 @@
 
 package types
 
+type BaseResponse struct {
+	Code int64       `json:"code"`
+	Msg  string      `json:"msg"`
+	Time int64       `json:"time"`
+	Data interface{} `json:"data"`
+}
+
 type CreateSubUserReq struct {
 	Username          string        `json:"username"`
 	Password          string        `json:"password"`
@@ -17,7 +24,7 @@ type DeleteSubUserReq struct {
 }
 
 type ListPopsRespone struct {
-	Pops []*Pop
+	Pops []*Pop `json:"pops"`
 }
 
 type ListSubUserRespone struct {
@@ -58,10 +65,10 @@ type LoginResponse struct {
 }
 
 type Pop struct {
-	Name         string
-	ID           string
-	Area         string
-	Socks5Server string
+	Name         string `json:"name"`
+	ID           string `json:"id"`
+	Area         string `json:"area"`
+	Socks5Server string `json:"socks5_server"`
 }
 
 type RefreshTokenRequest struct {

@@ -3,10 +3,12 @@ package auth
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
+	"titan-ipweb/internal/handler/utils"
 	"titan-ipweb/internal/logic/auth"
 	"titan-ipweb/internal/svc"
 	"titan-ipweb/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // 注册账号
@@ -21,9 +23,9 @@ func RegisterHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := auth.NewRegisterLogic(r.Context(), svcCtx)
 		resp, err := l.Register(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJsonCtx(r.Context(), w, utils.Error(err))
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			httpx.OkJsonCtx(r.Context(), w, utils.Success(resp))
 		}
 	}
 }

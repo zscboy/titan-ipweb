@@ -3,9 +3,11 @@ package handler
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
+	"titan-ipweb/internal/handler/utils"
 	"titan-ipweb/internal/logic"
 	"titan-ipweb/internal/svc"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // 拉取pops列表
@@ -14,9 +16,9 @@ func ListPopsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := logic.NewListPopsLogic(r.Context(), svcCtx)
 		resp, err := l.ListPops()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJsonCtx(r.Context(), w, utils.Error(err))
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			httpx.OkJsonCtx(r.Context(), w, utils.Success(resp))
 		}
 	}
 }

@@ -3,9 +3,11 @@ package auth
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
+	"titan-ipweb/internal/handler/utils"
 	"titan-ipweb/internal/logic/auth"
 	"titan-ipweb/internal/svc"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // test
@@ -14,9 +16,9 @@ func TestHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := auth.NewTestLogic(r.Context(), svcCtx)
 		resp, err := l.Test()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJsonCtx(r.Context(), w, utils.Error(err))
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			httpx.OkJsonCtx(r.Context(), w, utils.Success(resp))
 		}
 	}
 }

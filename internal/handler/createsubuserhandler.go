@@ -3,10 +3,12 @@ package handler
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
+	"titan-ipweb/internal/handler/utils"
 	"titan-ipweb/internal/logic"
 	"titan-ipweb/internal/svc"
 	"titan-ipweb/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // 创建socks5用户
@@ -21,9 +23,9 @@ func CreateSubUserHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := logic.NewCreateSubUserLogic(r.Context(), svcCtx)
 		resp, err := l.CreateSubUser(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJsonCtx(r.Context(), w, utils.Error(err))
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			httpx.OkJsonCtx(r.Context(), w, utils.Success(resp))
 		}
 	}
 }
