@@ -1,0 +1,214 @@
+// ippmserver.api
+type (
+	Pop {
+		ID         string `json:"id"`
+		Area       string `json:"area"`
+		Socks5Addr string `json:"socks5_addr"`
+		TotalNode  int    `json:"total_node"`
+	}
+	GetPopsResp {
+		Pops []*Pop
+	}
+	GetNodePopReq {
+		NodeId string `form:"nodeid"`
+	}
+	GetNodePopResp {
+		ServerURL   string `json:"server_url"`
+		AccessToken string `json:"access_token"`
+	}
+	GetAuthTokenResp {
+		Token string `json:"token"`
+	}
+	ListNodeReq {
+		PopID string `form:"popid"`
+		// 1.all, 2.unbind, 3.bind
+		Type  int `form:"type"`
+		Start int `form:"start"`
+		End   int `form:"end"`
+	}
+	Node {
+		Id string `json:"id"`
+		IP string `json:"ip"`
+		// Milliseconds
+		NetDelay int    `json:"net_delay"`
+		BindUser string `json:"bind_user"`
+		Online   bool   `json:"online"`
+	}
+	ListNodeResp {
+		Nodes []*Node `json:"nodes"`
+		Total int     `json:"total"`
+	}
+	Route {
+		// 1. auto mode, 2. manual mode, 3. Timed, 4.custom
+		Mode int `json:"mode"`
+		// if NodeID is empty, will auto allocate a node for user
+		NodeID string `json:"node_id,optional"`
+		// Mode=Timed
+		// If >0, switch every N minutes
+		IntervalMinutes int `json:"interval_minutes,optional"`
+		// Mode=Timed
+		// If IntervalMinutes=0, trigger at specific UTC minutes of day
+		UtcMinuteOfDay int `json:"utc_minute_of_day,optional"`
+	}
+	TrafficLimit {
+		// start time timestamp
+		StartTime int64 `json:"start_time"`
+		// end time timestamp
+		EndTime int64 `json:"end_time"`
+		// Total traffic allowed to the user
+		// unit Bytes
+		TotalTraffic int64 `json:"total_traffic,default=1073741824000"`
+	}
+	CreateUserReq {
+		UserName string `json:"user_name"`
+		Password string `json:"password"`
+		// the id of pop(Point of Presence)
+		PopId string `json:"pop_id"`
+		// if TrafficLimit is nil, will allocate 1 mouth and 1000GB traffic
+		TrafficLimit *TrafficLimit `json:"traffic_limit,optional"`
+		// if Route is nil, will use manual mode
+		Route *Route `json:"route,optional"`
+		// default 5Mb/s, 0 unlimit
+		UploadRateLimit int64 `json:"upload_rate_limit,default=655360"`
+		// default 10Mb/s, 0 unlimit
+		DownloadRateLimit int64 `json:"download_rate_limit,default=1310720"`
+	}
+	CreateUserResp {
+		UserName string `json:"user_name"`
+		// the id of pop(Point of Presence)
+		PopId string `json:"pop_id"`
+		// if TrafficLimit is nil, will allocate 1 mouth and 1000GB traffic
+		TrafficLimit *TrafficLimit `json:"traffic_limit"`
+		// if Route is nil, will use manual mode
+		Route  *Route `json:"route"`
+		NodeIP string `json:"node_ip"`
+	}
+	UserOperationResp {
+		Success bool   `json:"success"`
+		ErrMsg  string `json:"err_msg"`
+	}
+	ModifyUserPasswordReq {
+		UserName    string `json:"user_name"`
+		NewPassword string `json:"new_password"`
+	}
+	ModifyUserReq {
+		UserName     string        `json:"user_name"`
+		TrafficLimit *TrafficLimit `json:"traffic_limit"`
+		Route        *Route        `json:"route"`
+	}
+	GetUserReq {
+		UserName string `form:"username"`
+	}
+	GetUserResp {
+		User
+		PopId string `json:"pop_id"`
+	}
+	SwitchUserRouteNodeReq {
+		UserName string `json:"user_name"`
+		NodeId   string `json:"node_id, optional"`
+	}
+	DeleteUserReq {
+		UserName string `json:"user_name"`
+	}
+	StartOrStopUserReq {
+		// action is 'start' or 'stop'
+		UserName string `json:"user_name"`
+		Action   string `json:"action"`
+	}
+	User {
+		UserName string `json:"user_name"`
+		// if TrafficLimit is nil, will allocate 1 mouth and 1000GB traffic
+		TrafficLimit *TrafficLimit `json:"traffic_limit"`
+		// if Route is nil, will use manual mode
+		Route             *Route `json:"route"`
+		NodeIP            string `json:"node_ip"`
+		NodeOnline        bool   `json:"node_online"`
+		CurrentTraffic    int64  `json:"current_traffic"`
+		Off               bool   `json:"off"`
+		UploadRateLimit   int64  `json:"upload_rate_limit"`
+		DownloadRateLimit int64  `json:"download_rate_limit"`
+		// Unix timestamp of last route switch
+		LastRouteSwitchTime int64 `json:"last_route_switch_time"`
+	}
+	ListUserReq {
+		PopID string `form:"popid"`
+		Start int    `form:"start"`
+		End   int    `form:"end"`
+	}
+	ListUserResp {
+		Users []*User `json:"users"`
+		Total int     `json:"total"`
+	}
+	AddBlackListReq {
+		NodeID string `json:"node_id"`
+	}
+	RemoveBlackListReq {
+		NodeID string `json:"node_id"`
+	}
+	GetBlackListReq {
+		PodID string `form:"popid"`
+	}
+	GetBlackListResp {
+		Nodes []string `json:"nodes"`
+	}
+	KickNodeReq {
+		NodeID string `form:"nodeid"`
+	}
+)
+
+service server-api {
+	@handler getNodePop
+	get /node/pop (GetNodePopReq) returns (GetNodePopResp)
+
+	@handler getAuthToken
+	get /auth/token returns (GetAuthTokenResp)
+}
+
+@server (
+	jwt: JwtAuth // Enable jwt authentication
+)
+service server-api {
+	// will move to center server
+	@handler getPops
+	get /pops returns (GetPopsResp)
+
+	@handler listNode
+	get /node/list (ListNodeReq) returns (ListNodeResp)
+
+	@handler createUser
+	post /user/create (CreateUserReq) returns (CreateUserResp)
+
+	@handler listUser
+	get /user/list (ListUserReq) returns (ListUserResp)
+
+	@handler modifyUserPassword
+	post /user/password/modify (ModifyUserPasswordReq) returns (UserOperationResp)
+
+	@handler modifyUser
+	post /user/modify (ModifyUserReq) returns (UserOperationResp)
+
+	@handler getUser
+	get /user/get (GetUserReq) returns (GetUserResp)
+
+	@handler deleteUser
+	post /user/delete (DeleteUserReq) returns (UserOperationResp)
+
+	@handler switchUserRouteNode
+	post /user/routenode/switch (SwitchUserRouteNodeReq) returns (UserOperationResp)
+
+	@handler startOrStopUser
+	post /user/startorstop (StartOrStopUserReq) returns (UserOperationResp)
+
+	@handler addBlackList
+	post /node/blacklist/add (AddBlackListReq) returns (UserOperationResp)
+
+	@handler removeBlackList
+	post /node/blacklist/remove (RemoveBlackListReq) returns (UserOperationResp)
+
+	@handler getBlackList
+	get /node/blacklist/get (GetBlackListReq) returns (GetBlackListResp)
+
+	@handler KickNode
+	post /node/kick (KickNodeReq) returns (UserOperationResp)
+}
+

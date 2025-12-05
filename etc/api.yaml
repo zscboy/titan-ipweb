@@ -1,0 +1,20 @@
+Name: api
+Host: 0.0.0.0
+Port: 8888
+UserRpc:
+  Target: localhost:8080
+  Timeout: 30000
+TokenAuth: 
+  AccessSecret: c96ce150-d1ab-11f0-adbd-e30c81911f62
+Redis:
+  Host: 127.0.0.1:6379
+IPPMServer: http://59.37.137.170:41004
+Log:
+  #Mode: file
+  stat: false
+  level: debug 
+# UserRpc   zrpc.RpcClientConf
+# TokenAuth TokenAuth
+# Redis     redis.RedisConf
+# // IP pop manager server
+# IPPMServer string

@@ -1,0 +1,749 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "extensions-server-api",
+    "version": "v1"
+  },
+  "basePath": "/",
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "登陆",
+        "operationId": "authLoginHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "user_id"
+              ],
+              "properties": {
+                "invite_code": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "user_id": {
+                  "type": "string"
+                },
+                "verify_code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "access_token": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "expires_at": {
+                  "type": "integer"
+                },
+                "invite_code": {
+                  "type": "string"
+                },
+                "refresh_token": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "user_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login-by-google": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "谷歌登陆",
+        "operationId": "authLoginByGoogleHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "access_token": {
+                  "type": "string"
+                },
+                "credential": {
+                  "type": "string"
+                },
+                "invite_code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "access_token": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "expires_at": {
+                  "type": "integer"
+                },
+                "invite_code": {
+                  "type": "string"
+                },
+                "refresh_token": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "user_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/refresh-token": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "刷新令牌",
+        "operationId": "authRefreshTokenHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "refresh_token"
+              ],
+              "properties": {
+                "refresh_token": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "access_token": {
+                  "type": "string"
+                },
+                "expires_at": {
+                  "type": "integer"
+                },
+                "refresh_token": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "user_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "注册账号",
+        "operationId": "authRegister",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "email",
+                "verify_code"
+              ],
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "invite_code": {
+                  "description": "邀请码",
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "verify_code": {
+                  "description": "验证码",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "access_token": {
+                  "type": "string"
+                },
+                "expires_at": {
+                  "type": "integer"
+                },
+                "refresh_token": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "user_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "重设密码",
+        "operationId": "authResetPassword",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "email",
+                "password",
+                "verify_code"
+              ],
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "verify_code": {
+                  "description": "验证码",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "access_token": {
+                  "type": "string"
+                },
+                "expires_at": {
+                  "type": "integer"
+                },
+                "refresh_token": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "user_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/send-email-code": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "发送验证码",
+        "operationId": "authSendEmailCodeHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "email",
+                "purpose",
+                "point_json"
+              ],
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "point_json": {
+                  "type": "string"
+                },
+                "purpose": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/test": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "test",
+        "operationId": "authTestHandler",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/user-exists": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "账号是否注册",
+        "operationId": "authUserExists",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "email"
+              ],
+              "properties": {
+                "email": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "exists": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subuser/create": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "创建socks5用户",
+        "operationId": "createSubUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "username",
+                "password",
+                "pop_id",
+                "upload_rate_limit",
+                "download_rate_limit"
+              ],
+              "properties": {
+                "download_rate_limit": {
+                  "type": "integer",
+                  "default": 1310720,
+                  "example": 1310720
+                },
+                "password": {
+                  "type": "string"
+                },
+                "pop_id": {
+                  "type": "string"
+                },
+                "traffic_limit": {
+                  "type": "object",
+                  "required": [
+                    "start_time",
+                    "end_time",
+                    "total_traffic"
+                  ],
+                  "properties": {
+                    "end_time": {
+                      "type": "integer"
+                    },
+                    "start_time": {
+                      "type": "integer"
+                    },
+                    "total_traffic": {
+                      "type": "integer",
+                      "default": 1073741824000,
+                      "example": 1073741824000
+                    }
+                  }
+                },
+                "upload_rate_limit": {
+                  "type": "integer",
+                  "default": 655360,
+                  "example": 655360
+                },
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "download_rate_limit": {
+                  "type": "integer"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "server_address": {
+                  "type": "string"
+                },
+                "traffic_limit": {
+                  "type": "object",
+                  "required": [
+                    "start_time",
+                    "end_time",
+                    "total_traffic"
+                  ],
+                  "properties": {
+                    "end_time": {
+                      "type": "integer"
+                    },
+                    "start_time": {
+                      "type": "integer"
+                    },
+                    "total_traffic": {
+                      "type": "integer",
+                      "default": 1073741824000,
+                      "example": 1073741824000
+                    }
+                  }
+                },
+                "upload_rate_limit": {
+                  "type": "integer"
+                },
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subuser/delete": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "删除socks5用户",
+        "operationId": "deleteSubUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "username"
+              ],
+              "properties": {
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/subuser/list": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "拉取socks5用户列表",
+        "operationId": "listSubUser",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Users": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "username",
+                      "password",
+                      "server_address",
+                      "traffic_limit",
+                      "upload_rate_limit",
+                      "download_rate_limit"
+                    ],
+                    "properties": {
+                      "download_rate_limit": {
+                        "type": "integer"
+                      },
+                      "password": {
+                        "type": "string"
+                      },
+                      "server_address": {
+                        "type": "string"
+                      },
+                      "traffic_limit": {
+                        "type": "object",
+                        "required": [
+                          "start_time",
+                          "end_time",
+                          "total_traffic"
+                        ],
+                        "properties": {
+                          "end_time": {
+                            "type": "integer"
+                          },
+                          "start_time": {
+                            "type": "integer"
+                          },
+                          "total_traffic": {
+                            "type": "integer",
+                            "default": 1073741824000,
+                            "example": 1073741824000
+                          }
+                        }
+                      },
+                      "upload_rate_limit": {
+                        "type": "integer"
+                      },
+                      "username": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subuser/pops": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "拉取pops列表",
+        "operationId": "listPops",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pops": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "Area": {
+                        "type": "string"
+                      },
+                      "ID": {
+                        "type": "string"
+                      },
+                      "Name": {
+                        "type": "string"
+                      },
+                      "Socks5Server": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-date": "2025-12-05 17:43:39",
+  "x-description": "This is a goctl generated swagger file.",
+  "x-github": "https://github.com/zeromicro/go-zero",
+  "x-go-zero-doc": "https://go-zero.dev/",
+  "x-goctl-version": "1.8.4"
+}

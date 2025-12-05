@@ -1,0 +1,260 @@
+syntax = "proto3";
+
+package user;
+option go_package = "./user";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// 用户服务定义
+service UserService {
+  // 通用邮箱验证码发送
+  rpc SendEmailVerificationCode(SendEmailCodeRequest) returns (SendEmailCodeResponse);
+
+  // 邮箱注册（使用密码）
+  rpc RegisterByEmail(EmailRegisterRequest) returns (RegisterResponse);
+
+  // 邮箱密码登录
+  rpc LoginByEmail(EmailLoginRequest) returns (LoginResponse);
+
+  // Web3登录初始化
+  rpc InitWeb3Login(Web3LoginInitRequest) returns (Web3LoginInitResponse);
+
+  // Web3登录完成
+  rpc CompleteWeb3Login(Web3LoginCompleteRequest) returns (LoginResponse);
+
+  // 谷歌登陆
+  rpc LoginByGoogle(LoginByGoogleRequest) returns (LoginByGoogleResponse);
+
+  // 创建账号
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+
+  // 获取用户信息
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+
+  // 获取用户信息
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (UserResponse);
+
+  // 返回账号是否已经注册
+  rpc UserExists(UserExistsRequest) returns (UserExistsResponse);
+
+  // 重设密码
+  rpc ResetPassword(ResetPasswordRequest) returns(ResetPasswordResponse);
+
+  // 阿里云人机校验
+  rpc VerifyAliYunCaptcha(VerifyAliYunCaptchaRequest) returns (VerifyAliYunCaptchaResponse);
+
+  // 刷新token
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+
+  //  获取 token
+  rpc GetAccessToken(GetAccessTokenRequest) returns (GetAccessTokenResponse);
+}
+
+// ===== 请求/响应结构定义 =====
+
+// 用户基本信息
+message UserInfo {
+  int64 id = 1; // 用户唯一ID，自增
+  string user_id = 2;
+  string email = 3; // 邮箱，唯一，非空（如果使用邮箱注册）
+  string google_id = 4; // 谷歌账号ID，唯一，可为空
+  string wallet_address = 5; // Web3钱包地址，唯一，可为空
+  string status = 6; // 用户状态（如 active, inactive, banned）
+  string role = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+
+// 发送邮箱验证码请求
+enum CodeType {
+  REGISTER = 0;
+  LOGIN = 1;
+  RESET_PASSWORD = 2;
+  LINK_ACCOUNT = 3;
+}
+
+message SendEmailCodeRequest {
+  string email = 1;
+  CodeType purpose = 2; // 验证码用途
+  string point_json = 3;
+  bool  check_captcha = 4;
+  string lang = 5;
+}
+
+// 发送邮箱验证码响应
+message SendEmailCodeResponse {
+  bool success = 1;
+  int32 expire_seconds = 2; // 过期时间（秒）
+}
+
+// 邮箱注册请求
+message EmailRegisterRequest {
+  string email = 1;
+  string password = 2; // 可选，用户可设置密码
+  string verification_code = 3;
+  string nickname = 4; // 用户昵称
+}
+
+// 邮箱密码登录请求
+message EmailLoginRequest {
+  string email = 1;
+  string password = 2;
+  string verification_code = 3; // 邮箱验证码
+}
+
+// ===== Web3 钱包认证 =====
+
+// Web3 登录初始化请求
+message Web3LoginInitRequest {
+  string wallet_address = 1;
+}
+
+// Web3 登录初始化响应
+message Web3LoginInitResponse {
+  string nonce = 1;           // 挑战随机数
+  int64 expires_at = 2;       // 过期时间戳(秒)
+}
+
+// Web3 登录完成请求
+message Web3LoginCompleteRequest {
+  string wallet_address = 1;
+  string signature = 2;       // 对 nonce 的签名
+  string nonce = 3;           // 来自初始化响应的挑战随机数
+}
+
+// ===== 谷歌登录 =====
+
+// 谷歌登录请求
+message CreateUserRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message  CreateUserResponse {
+  string user_uuid = 1;
+  string role = 2;
+  string auth_token = 3;      // 认证令牌
+  string refresh_token = 4;
+  int64 expires_at = 5;       // 过期时间戳(秒)
+}
+
+// ===== 响应结构 =====
+
+// 注册响应
+message RegisterResponse {
+  string user_uuid = 1;
+  string role = 2;
+  string auth_token = 3;      // 认证令牌
+  string refresh_token = 4;
+  int64 expires_at = 5;       // 过期时间戳(秒)
+}
+
+// 登录响应
+message LoginResponse {
+  string user_uuid = 1;
+  string role = 2;
+  string auth_token = 3;      // 认证令牌
+  string refresh_token = 4;
+  int64 expires_at = 5;       // 过期时间戳(秒)
+}
+
+// 链接响应
+message LinkResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// 解绑响应
+message UnlinkResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// 获取用户请求
+message GetUserRequest {
+  string user_id = 1;
+}
+
+// 用户响应
+message UserResponse {
+  UserInfo user = 1;
+}
+
+// 获取用户请求
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message  UserExistsRequest {
+  string email = 1;
+}
+
+message  UserExistsResponse {
+  bool exists = 1;
+}
+
+message  ResetPasswordRequest {
+  string email = 1;
+  string password = 2;
+  string verify_code  = 3; //验证码
+}
+
+message ResetPasswordResponse {
+  string user_uuid = 1;
+  string role = 2;
+  string auth_token = 3;      // 认证令牌
+  string refresh_token = 4;
+  int64 expires_at = 5;       // 过期时间戳(秒)
+}
+
+message VerifyAliYunCaptchaRequest {
+    string pointJson = 1;
+}
+
+message  VerifyAliYunCaptchaResponse {
+  bool res = 1;
+  string msg = 2;
+}
+
+message  RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message  RefreshTokenResponse {
+  string user_uuid = 1;
+  string role = 2;
+  string auth_token = 3;      // 认证令牌
+  string refresh_token = 4;
+  int64 expires_at = 5;       // 过期时间戳(秒)
+}
+
+
+message GetAccessTokenRequest {
+  string email = 1;
+  string user_id = 2;
+}
+
+message  GetAccessTokenResponse {
+  string user_uuid = 1;
+  string role = 2;
+  string auth_token = 3;      // 认证令牌
+  string refresh_token = 4;
+  int64 expires_at = 5;       // 过期时间戳(秒)
+}
+
+
+message LoginByGoogleRequest {
+  string credential = 1;
+  string access_token = 2;
+}
+
+message LoginByGoogleResponse {
+  string user_uuid = 1;
+  string email = 2;
+  string role = 3;
+  string auth_token = 4;      // 认证令牌
+  string refresh_token = 5;
+  int64 expires_at = 6;       // 过期时间戳(秒)
+}

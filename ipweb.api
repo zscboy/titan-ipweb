@@ -1,0 +1,197 @@
+syntax = "v1"
+
+info (
+	title:   "extensions-server-api"
+	version: "v1"
+	desc:    "API documentation for the extensions server"
+)
+
+type (
+	LoginRequest {
+		UserId     string `json:"user_id"`
+		Password   string `json:"password,optional"`
+		VerifyCode string `json:"verify_code,optional"`
+		InviteCode string `json:"invite_code,optional"`
+	}
+	LoginResponse {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		UserId       string `json:"user_id"`
+		Email        string `json:"email"`
+		Role         string `json:"role"`
+		InviteCode   string `json:"invite_code"`
+		ExpiresAt    int64  `json:"expires_at"`
+	}
+	LoginByGoogleRequest {
+		Credential  string `json:"credential,optional"`
+		AccessToken string `json:"access_token,optional"`
+		InviteCode  string `json:"invite_code,optional"`
+	}
+	LoginByGoogleResponse {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		UserId       string `json:"user_id"`
+		Email        string `json:"email"`
+		Role         string `json:"role"`
+		InviteCode   string `json:"invite_code"`
+		ExpiresAt    int64  `json:"expires_at"`
+	}
+	RefreshTokenRequest {
+		RefreshToken string `json:"refresh_token"`
+	}
+	RefreshTokenResponse {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		UserId       string `json:"user_id"`
+		Role         string `json:"role"`
+		ExpiresAt    int64  `json:"expires_at"`
+	}
+	SendEmailCodeRequest {
+		Email     string `json:"email"`
+		Purpose   int64  `json:"purpose"`
+		PointJson string `json:"point_json"`
+	}
+	SendEmailCodeResponse  {}
+	UserRegisterReq {
+		Email      string `json:"email"`
+		Password   string `json:"password,optional"`
+		InviteCode string `json:"invite_code,optional"` // 邀请码
+		VerifyCode string `json:"verify_code"` //验证码
+	}
+	UserRegisterResp {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		UserId       string `json:"user_id"`
+		Role         string `json:"role"`
+		ExpiresAt    int64  `json:"expires_at"`
+	}
+	UserExistsReq {
+		Email string `json:"email"`
+	}
+	UserExistsResp {
+		Exists bool `json:"exists"`
+	}
+	ResetPasswordRequest {
+		Email      string `json:"email"`
+		Password   string `json:"password"`
+		VerifyCode string `json:"verify_code"` //验证码
+	}
+	ResetPasswordResponse {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		UserId       string `json:"user_id"`
+		Role         string `json:"role"`
+		ExpiresAt    int64  `json:"expires_at"`
+	}
+)
+
+type (
+	TrafficLimit {
+		// start time timestamp
+		StartTime int64 `json:"start_time"`
+		// end time timestamp
+		EndTime int64 `json:"end_time"`
+		// Total traffic allowed to the user
+		// unit Bytes
+		TotalTraffic int64 `json:"total_traffic,default=1073741824000"`
+	}
+	CreateSubUserReq {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		// the id of pop(Point of Presence)
+		PopId string `json:"pop_id"`
+		// if TrafficLimit is nil, will allocate 1 mouth and 1000GB traffic
+		TrafficLimit *TrafficLimit `json:"traffic_limit,optional"`
+		// if Route is nil, will use manual mode
+		// Route *Route `json:"route,optional"`
+		// default 5Mb/s, 0 unlimit
+		UploadRateLimit int64 `json:"upload_rate_limit,default=655360"`
+		// default 10Mb/s, 0 unlimit
+		DownloadRateLimit int64 `json:"download_rate_limit,default=1310720"`
+	}
+	DeleteSubUserReq {
+		Username string `json:"username"`
+	}
+	SubUser {
+		Username          string        `json:"username"`
+		Password          string        `json:"password"`
+		ServerAddress     string        `json:"server_address"`
+		TrafficLimit      *TrafficLimit `json:"traffic_limit"`
+		UploadRateLimit   int64         `json:"upload_rate_limit"`
+		DownloadRateLimit int64         `json:"download_rate_limit"`
+	}
+	ListSubUserRespone {
+		Users []*SubUser
+	}
+	Pop {
+		Name         string
+		ID           string
+		Area         string
+		Socks5Server string
+	}
+	ListPopsRespone {
+		pops []*Pop
+	}
+)
+
+@server (
+	prefix:     /api/auth
+	group:      auth
+	middleware: Header,UserAgent
+)
+service api {
+	@doc "登陆"
+	@handler LoginHandler
+	post /login (LoginRequest) returns (LoginResponse)
+
+	@doc "谷歌登陆"
+	@handler LoginByGoogleHandler
+	post /login-by-google (LoginByGoogleRequest) returns (LoginByGoogleResponse)
+
+	@doc "刷新令牌"
+	@handler RefreshTokenHandler
+	post /refresh-token (RefreshTokenRequest) returns (RefreshTokenResponse)
+
+	@doc "发送验证码"
+	@handler SendEmailCodeHandler
+	post /send-email-code (SendEmailCodeRequest) returns (SendEmailCodeResponse)
+
+	@doc "注册账号"
+	@handler Register
+	post /register (UserRegisterReq) returns (UserRegisterResp)
+
+	@doc "账号是否注册"
+	@handler UserExists
+	post /user-exists (UserExistsReq) returns (UserExistsResp)
+
+	@doc "重设密码"
+	@handler ResetPassword
+	post /reset-password (ResetPasswordRequest) returns (ResetPasswordResponse)
+
+	@doc "test"
+	@handler TestHandler
+	get /test returns (string)
+}
+
+@server (
+	prefix:     /api/subuser
+	middleware: Header,UserAgent,Auth
+)
+service api {
+	@doc "创建socks5用户"
+	@handler CreateSubUser
+	post /create (CreateSubUserReq) returns (SubUser)
+
+	@doc "删除socks5用户"
+	@handler DeleteSubUser
+	post /delete (DeleteSubUserReq)
+
+	@doc "拉取socks5用户列表"
+	@handler ListSubUser
+	get /list returns (ListSubUserRespone)
+
+	@doc "拉取pops列表"
+	@handler ListPops
+	get /pops returns (ListPopsRespone)
+}
+

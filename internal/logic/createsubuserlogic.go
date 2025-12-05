@@ -1,0 +1,152 @@
+package logic
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+
+	"titan-ipweb/internal/middleware"
+	"titan-ipweb/internal/svc"
+	"titan-ipweb/internal/types"
+	"titan-ipweb/ippmclient"
+	"titan-ipweb/model"
+
+	"github.com/zeromicro/go-zero/core/logx"
+)
+
+const RouteModeCustom = 4
+
+type CreateSubUserLogic struct {
+	logx.Logger
+	ctx    context.Context
+	svcCtx *svc.ServiceContext
+}
+
+// 创建socks5用户
+func NewCreateSubUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CreateSubUserLogic {
+	return &CreateSubUserLogic{
+		Logger: logx.WithContext(ctx),
+		ctx:    ctx,
+		svcCtx: svcCtx,
+	}
+}
+
+func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *types.SubUser, err error) {
+	logx.Debugf("CreateUser %#v", req)
+	v := l.ctx.Value(middleware.AuthKey)
+	autCtxValue, ok := v.(middleware.AuthCtxValue)
+	if !ok {
+		return nil, fmt.Errorf("auth failed")
+	}
+
+	createUserResp, err := l.createSubUser(req)
+	if err != nil {
+		return nil, err
+	}
+
+	subUser := &model.SubUser{
+		Password:          createUserResp.Password,
+		Username:          createUserResp.Username,
+		ServerAddress:     createUserResp.ServerAddress,
+		TotalTrafficLimit: createUserResp.TrafficLimit.TotalTraffic,
+		UploadRateLimit:   createUserResp.UploadRateLimit,
+		DownloadRateLImit: createUserResp.DownloadRateLimit,
+	}
+
+	if err := model.SaveSubUser(l.svcCtx.Redis, subUser); err != nil {
+		return nil, err
+	}
+
+	if err := model.AddSubUser(l.svcCtx.Redis, autCtxValue.UserId, subUser.Username); err != nil {
+		return nil, err
+	}
+
+	return createUserResp, nil
+}
+
+func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *types.SubUser, err error) {
+	url := fmt.Sprintf("%s/user/create", l.svcCtx.Config.IPPMServer)
+	createUserReq := ippmclient.CreateUserReq{
+		UserName:          req.Username,
+		Password:          req.Password,
+		PopId:             req.PopId,
+		Route:             &ippmclient.Route{Mode: RouteModeCustom},
+		UploadRateLimit:   req.UploadRateLimit,
+		DownloadRateLimit: req.DownloadRateLimit,
+	}
+
+	if req.TrafficLimit != nil {
+		traffic := &ippmclient.TrafficLimit{
+			StartTime:    req.TrafficLimit.StartTime,
+			EndTime:      req.TrafficLimit.EndTime,
+			TotalTraffic: req.TrafficLimit.TotalTraffic,
+		}
+		createUserReq.TrafficLimit = traffic
+	}
+
+	buf, err := json.Marshal(createUserReq)
+	if err != nil {
+		return nil, fmt.Errorf("marshal error %v", err)
+	}
+
+	client := &http.Client{}
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(buf))
+	if err != nil {
+		return nil, fmt.Errorf("NewRequest error %v", err)
+	}
+
+	request.Header.Set("Authorization", "Bearer "+l.svcCtx.IPPMAcessToken)
+	request.Header.Set("Content-Type", "application/json")
+
+	httpResp, err := client.Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("http do error %v", err)
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		data, _ := io.ReadAll(httpResp.Body)
+		return nil, fmt.Errorf("http status code %d, error msg %s", httpResp.StatusCode, string(data))
+	}
+
+	data, err := io.ReadAll(httpResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	createUserResp := &ippmclient.CreateUserResp{}
+	err = json.Unmarshal(data, createUserResp)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal error %v", err)
+	}
+
+	traffic := types.TrafficLimit{
+		StartTime:    createUserResp.TrafficLimit.StartTime,
+		EndTime:      createUserResp.TrafficLimit.EndTime,
+		TotalTraffic: createUserResp.TrafficLimit.TotalTraffic,
+	}
+
+	subUser := &types.SubUser{
+		Username:          createUserReq.UserName,
+		Password:          createUserReq.Password,
+		TrafficLimit:      &traffic,
+		ServerAddress:     l.getSocks5Addrss(createUserReq.PopId),
+		UploadRateLimit:   createUserReq.UploadRateLimit,
+		DownloadRateLimit: createUserReq.DownloadRateLimit,
+	}
+
+	return subUser, nil
+}
+
+func (l *CreateSubUserLogic) getSocks5Addrss(popID string) string {
+	pops := l.svcCtx.Pops
+	for _, pop := range pops {
+		if pop.ID == popID {
+			return pop.Socks5Server
+		}
+	}
+	return ""
+}
