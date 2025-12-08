@@ -476,7 +476,7 @@
         "schemes": [
           "https"
         ],
-        "summary": "创建socks5用户",
+        "summary": "创建子用户",
         "operationId": "createSubUser",
         "parameters": [
           {
@@ -587,7 +587,7 @@
         "schemes": [
           "https"
         ],
-        "summary": "删除socks5用户",
+        "summary": "删除子用户",
         "operationId": "deleteSubUser",
         "parameters": [
           {
@@ -668,7 +668,7 @@
         "schemes": [
           "https"
         ],
-        "summary": "拉取socks5用户列表",
+        "summary": "拉取子用户列表",
         "operationId": "listSubUser",
         "responses": {
           "200": {
@@ -945,7 +945,7 @@
       }
     }
   },
-  "x-date": "2025-12-08 16:38:23",
+  "x-date": "2025-12-08 16:41:04",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
