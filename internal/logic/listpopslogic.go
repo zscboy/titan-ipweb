@@ -69,7 +69,7 @@ func (l *ListPopsLogic) listPops() (resp *types.ListPopsResponse, err error) {
 
 	pops := make([]*types.Pop, 0, len(popsResp.Pops))
 	for _, p := range popsResp.Pops {
-		pop := &types.Pop{ID: p.ID, Area: p.Area, Socks5Server: p.Socks5Addr}
+		pop := &types.Pop{ID: p.ID, Name: p.Name, Area: p.Area, Socks5Server: p.Socks5Addr}
 		pops = append(pops, pop)
 	}
 	return &types.ListPopsResponse{Pops: pops}, nil

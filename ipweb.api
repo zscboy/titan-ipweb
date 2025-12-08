@@ -118,19 +118,25 @@ type (
 		// default 10Mb/s, 0 unlimit
 		DownloadRateLimit int64 `json:"download_rate_limit,default=1310720"`
 		// default 100Mb/s, 0 unlimit
-		PeakBandwidth int64 `json:"peak_bandwidth,default=13107200"`
-		TotalTraffic  int64 `json:"total_traffic,default=1073741824000"`
+		MaxBandwidthLimit int64 `json:"max_bandwidth_limit,default=13107200"`
+		TotalTrafficLimit int64 `json:"total_traffic_limit,default=1073741824000"`
 	}
 	DeleteSubUserReq {
 		Username string `json:"username"`
 	}
 	SubUser {
-		Username          string        `json:"username"`
-		Password          string        `json:"password"`
-		ServerAddress     string        `json:"server_address"`
-		TrafficLimit      *TrafficLimit `json:"traffic_limit"`
-		UploadRateLimit   int64         `json:"upload_rate_limit"`
-		DownloadRateLimit int64         `json:"download_rate_limit"`
+		Username      string `json:"username"`
+		Password      string `json:"password"`
+		ServerAddress string `json:"server_address"`
+		// TrafficLimit      *TrafficLimit `json:"traffic_limit"`
+		TotalTrafficLimit int64  `json:"total_traffic_limit"`
+		CurrentTraffic    int64  `json:"current_traffic"`
+		MaxBandwidthLimit int64  `json:"max_bandwidth_limit"`
+		UploadRateLimit   int64  `json:"upload_rate_limit"`
+		DownloadRateLimit int64  `json:"download_rate_limit"`
+		CreateTime        int64  `json:"create_time"`
+        // active or stop
+		Status            string `json:"status"`
 	}
 	ListSubUserResponse {
 		Users []*SubUser `json:"sub_users"`

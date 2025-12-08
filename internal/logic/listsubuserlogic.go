@@ -45,8 +45,12 @@ func (l *ListSubUserLogic) ListSubUser() (resp *types.ListSubUserResponse, err e
 			Username:          subUser.Username,
 			Password:          subUser.Password,
 			ServerAddress:     subUser.ServerAddress,
+			TotalTrafficLimit: subUser.TotalTrafficLimit,
+			MaxBandwidthLimit: subUser.MaxBandwidthLimit,
 			UploadRateLimit:   subUser.UploadRateLimit,
-			DownloadRateLimit: subUser.DownloadRateLImit,
+			DownloadRateLimit: subUser.DownloadRateLimit,
+			CreateTime:        subUser.CreateTime,
+			Status:            subUser.Status,
 		}
 		users = append(users, user)
 	}

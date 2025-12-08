@@ -16,8 +16,8 @@ type CreateSubUserReq struct {
 	PopId             string `json:"pop_id"`
 	UploadRateLimit   int64  `json:"upload_rate_limit,default=655360"`
 	DownloadRateLimit int64  `json:"download_rate_limit,default=1310720"`
-	PeakBandwidth     int64  `json:"peak_bandwidth,default=13107200"`
-	TotalTraffic      int64  `json:"total_traffic,default=1073741824000"`
+	MaxBandwidthLimit int64  `json:"max_bandwidth_limit,default=13107200"`
+	TotalTrafficLimit int64  `json:"total_traffic_limit,default=1073741824000"`
 }
 
 type DeleteSubUserReq struct {
@@ -108,12 +108,16 @@ type SendEmailCodeResponse struct {
 }
 
 type SubUser struct {
-	Username          string        `json:"username"`
-	Password          string        `json:"password"`
-	ServerAddress     string        `json:"server_address"`
-	TrafficLimit      *TrafficLimit `json:"traffic_limit"`
-	UploadRateLimit   int64         `json:"upload_rate_limit"`
-	DownloadRateLimit int64         `json:"download_rate_limit"`
+	Username          string `json:"username"`
+	Password          string `json:"password"`
+	ServerAddress     string `json:"server_address"`
+	TotalTrafficLimit int64  `json:"total_traffic_limit"`
+	CurrentTraffic    int64  `json:"current_traffic"`
+	MaxBandwidthLimit int64  `json:"max_bandwidth_limit"`
+	UploadRateLimit   int64  `json:"upload_rate_limit"`
+	DownloadRateLimit int64  `json:"download_rate_limit"`
+	CreateTime        int64  `json:"create_time"`
+	Status            string `json:"status"`
 }
 
 type TrafficLimit struct {

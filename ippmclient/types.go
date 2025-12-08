@@ -111,6 +111,7 @@ type Node struct {
 
 type Pop struct {
 	ID         string `json:"id"`
+	Name       string `json:"name"`
 	Area       string `json:"area"`
 	Socks5Addr string `json:"socks5_addr"`
 	TotalNode  int    `json:"total_node"`

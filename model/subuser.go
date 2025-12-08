@@ -15,8 +15,11 @@ type SubUser struct {
 	Password          string `redis:"password"`
 	ServerAddress     string `redis:"server_address"`
 	UploadRateLimit   int64  `redis:"upload_rate_limit"`
-	DownloadRateLImit int64  `redis:"download_rate_limit"`
+	DownloadRateLimit int64  `redis:"download_rate_limit"`
+	MaxBandwidthLimit int64  `redis:"max_bandwidth_limit"`
 	TotalTrafficLimit int64  `redis:"total_traffic_limit"`
+	CreateTime        int64  `redis:"create_time"`
+	Status            string `redis:"status"`
 }
 
 func subUserKey(username string) string {
@@ -69,6 +72,7 @@ func AddSubUser(rdb *redis.Redis, uuid string, subUsername string) error {
 	return err
 }
 
+// TODO: split by start and stop
 func GetUserSubUsers(ctx context.Context, rdb *redis.Redis, uuid string) ([]*SubUser, error) {
 	key := userSubUserKey(uuid)
 	usernames, err := rdb.Zrange(key, 0, -1)

@@ -52,9 +52,12 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 		Password:          createUserResp.Password,
 		Username:          createUserResp.Username,
 		ServerAddress:     createUserResp.ServerAddress,
-		TotalTrafficLimit: createUserResp.TrafficLimit.TotalTraffic,
+		TotalTrafficLimit: createUserResp.TotalTrafficLimit,
+		MaxBandwidthLimit: createUserResp.MaxBandwidthLimit,
 		UploadRateLimit:   createUserResp.UploadRateLimit,
-		DownloadRateLImit: createUserResp.DownloadRateLimit,
+		DownloadRateLimit: createUserResp.DownloadRateLimit,
+		CreateTime:        createUserResp.CreateTime,
+		Status:            createUserResp.Status,
 	}
 
 	if err := model.SaveSubUser(l.svcCtx.Redis, subUser); err != nil {
@@ -82,7 +85,7 @@ func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *t
 	traffic := &ippmclient.TrafficLimit{
 		StartTime:    time.Now().Unix(),
 		EndTime:      time.Now().Add(30 * 24 * time.Hour).Unix(),
-		TotalTraffic: req.TotalTraffic,
+		TotalTraffic: req.TotalTrafficLimit,
 	}
 	createUserReq.TrafficLimit = traffic
 	buf, err := json.Marshal(createUserReq)
@@ -121,19 +124,16 @@ func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *t
 		return nil, fmt.Errorf("unmarshal error %v", err)
 	}
 
-	trafficResp := types.TrafficLimit{
-		StartTime:    createUserResp.TrafficLimit.StartTime,
-		EndTime:      createUserResp.TrafficLimit.EndTime,
-		TotalTraffic: createUserResp.TrafficLimit.TotalTraffic,
-	}
-
 	subUser := &types.SubUser{
 		Username:          createUserReq.UserName,
 		Password:          createUserReq.Password,
-		TrafficLimit:      &trafficResp,
+		TotalTrafficLimit: createUserResp.TrafficLimit.TotalTraffic,
+		MaxBandwidthLimit: req.MaxBandwidthLimit,
 		ServerAddress:     l.getSocks5Addrss(createUserReq.PopId),
 		UploadRateLimit:   createUserReq.UploadRateLimit,
 		DownloadRateLimit: createUserReq.DownloadRateLimit,
+		CreateTime:        time.Now().Unix(),
+		Status:            "active",
 	}
 
 	return subUser, nil
