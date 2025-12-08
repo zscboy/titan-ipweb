@@ -30,16 +30,40 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: DeleteSubUserHandler(serverCtx),
 				},
 				{
+					// 编辑用户的流量配额与带宽限制
+					Method:  http.MethodPost,
+					Path:    "/edit",
+					Handler: EditSubUserLimitHandler(serverCtx),
+				},
+				{
 					// 拉取socks5用户列表
 					Method:  http.MethodGet,
 					Path:    "/list",
 					Handler: ListSubUserHandler(serverCtx),
 				},
 				{
+					// 获取无效的子用户列表
+					Method:  http.MethodGet,
+					Path:    "/list-invalid",
+					Handler: ListInvalidSubUserHandler(serverCtx),
+				},
+				{
 					// 拉取pops列表
 					Method:  http.MethodGet,
 					Path:    "/pops",
 					Handler: ListPopsHandler(serverCtx),
+				},
+				{
+					// 获取无效的子用户列表
+					Method:  http.MethodGet,
+					Path:    "/total-quota",
+					Handler: GetTotalQuotaHandler(serverCtx),
+				},
+				{
+					// 更新子账户状态
+					Method:  http.MethodPost,
+					Path:    "/update-status",
+					Handler: UpdateSubUserStatusHandler(serverCtx),
 				},
 			}...,
 		),

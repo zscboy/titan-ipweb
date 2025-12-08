@@ -534,6 +534,12 @@
             "schema": {
               "type": "object",
               "properties": {
+                "EndTime": {
+                  "type": "integer"
+                },
+                "StartTime": {
+                  "type": "integer"
+                },
                 "create_time": {
                   "type": "integer"
                 },
@@ -609,6 +615,51 @@
         }
       }
     },
+    "/api/subuser/edit": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "编辑用户的流量配额与带宽限制",
+        "operationId": "editSubUserLimit",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "username"
+              ],
+              "properties": {
+                "max_bandwidth_limit": {
+                  "type": "integer"
+                },
+                "total_traffic_limit": {
+                  "type": "integer"
+                },
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
     "/api/subuser/list": {
       "get": {
         "produces": [
@@ -642,6 +693,90 @@
                       "status"
                     ],
                     "properties": {
+                      "EndTime": {
+                        "type": "integer"
+                      },
+                      "StartTime": {
+                        "type": "integer"
+                      },
+                      "create_time": {
+                        "type": "integer"
+                      },
+                      "current_traffic": {
+                        "type": "integer"
+                      },
+                      "download_rate_limit": {
+                        "type": "integer"
+                      },
+                      "max_bandwidth_limit": {
+                        "type": "integer"
+                      },
+                      "password": {
+                        "type": "string"
+                      },
+                      "server_address": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "total_traffic_limit": {
+                        "type": "integer"
+                      },
+                      "upload_rate_limit": {
+                        "type": "integer"
+                      },
+                      "username": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subuser/list-invalid": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取无效的子用户列表",
+        "operationId": "listInvalidSubUser",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "sub_users": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "username",
+                      "password",
+                      "server_address",
+                      "total_traffic_limit",
+                      "current_traffic",
+                      "max_bandwidth_limit",
+                      "upload_rate_limit",
+                      "download_rate_limit",
+                      "create_time",
+                      "status"
+                    ],
+                    "properties": {
+                      "EndTime": {
+                        "type": "integer"
+                      },
+                      "StartTime": {
+                        "type": "integer"
+                      },
                       "create_time": {
                         "type": "integer"
                       },
@@ -728,9 +863,89 @@
           }
         }
       }
+    },
+    "/api/subuser/total-quota": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取无效的子用户列表",
+        "operationId": "getTotalQuota",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "sub_user_count": {
+                  "type": "integer"
+                },
+                "total_bandwidth_allocated": {
+                  "type": "integer"
+                },
+                "total_bandwidth_limit": {
+                  "type": "integer"
+                },
+                "total_traffic_allocated": {
+                  "type": "integer"
+                },
+                "total_traffic_limit": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subuser/update-status": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "更新子账户状态",
+        "operationId": "updateSubUserStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "username",
+                "status"
+              ],
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
     }
   },
-  "x-date": "2025-12-08 11:45:36",
+  "x-date": "2025-12-08 16:27:20",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

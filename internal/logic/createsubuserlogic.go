@@ -43,6 +43,14 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 		return nil, fmt.Errorf("auth failed")
 	}
 
+	user, err := model.GetSubUser(l.svcCtx.Redis, req.Username)
+	if err != nil {
+		return nil, err
+	}
+	if user != nil {
+		return nil, fmt.Errorf("user %s already exist", req.Username)
+	}
+
 	createUserResp, err := l.createSubUser(req)
 	if err != nil {
 		return nil, err
@@ -64,7 +72,7 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 		return nil, err
 	}
 
-	if err := model.AddSubUser(l.svcCtx.Redis, autCtxValue.UserId, subUser.Username); err != nil {
+	if err := model.AddSubUserZset(l.svcCtx.Redis, autCtxValue.UserId, subUser.Username); err != nil {
 		return nil, err
 	}
 
@@ -134,6 +142,8 @@ func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *t
 		DownloadRateLimit: createUserReq.DownloadRateLimit,
 		CreateTime:        time.Now().Unix(),
 		Status:            "active",
+		StartTime:         createUserResp.TrafficLimit.StartTime,
+		EndTime:           createUserResp.TrafficLimit.EndTime,
 	}
 
 	return subUser, nil

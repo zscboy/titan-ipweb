@@ -129,14 +129,16 @@ type (
 		Password      string `json:"password"`
 		ServerAddress string `json:"server_address"`
 		// TrafficLimit      *TrafficLimit `json:"traffic_limit"`
-		TotalTrafficLimit int64  `json:"total_traffic_limit"`
-		CurrentTraffic    int64  `json:"current_traffic"`
-		MaxBandwidthLimit int64  `json:"max_bandwidth_limit"`
-		UploadRateLimit   int64  `json:"upload_rate_limit"`
-		DownloadRateLimit int64  `json:"download_rate_limit"`
-		CreateTime        int64  `json:"create_time"`
-        // active or stop
-		Status            string `json:"status"`
+		TotalTrafficLimit int64 `json:"total_traffic_limit"`
+		CurrentTraffic    int64 `json:"current_traffic"`
+		MaxBandwidthLimit int64 `json:"max_bandwidth_limit"`
+		UploadRateLimit   int64 `json:"upload_rate_limit"`
+		DownloadRateLimit int64 `json:"download_rate_limit"`
+		CreateTime        int64 `json:"create_time"`
+		// active or stop
+		Status    string `json:"status"`
+		StartTime int64
+		EndTime   int64
 	}
 	ListSubUserResponse {
 		Users []*SubUser `json:"sub_users"`
@@ -149,6 +151,25 @@ type (
 	}
 	ListPopsResponse {
 		Pops []*Pop `json:"pops"`
+	}
+	EditSubUserLimitReq {
+		Username          string `json:"username"`
+		MaxBandwidthLimit *int64 `json:"max_bandwidth_limit,optional"`
+		TotalTrafficLimit *int64 `json:"total_traffic_limit,optional"`
+	}
+	UpdateSubUserStatusReq {
+		Username string `json:"username"`
+		Status   string `json:"status" enums:"start,stop"`
+	}
+	ListInvalidSubUserResponse {
+		Users []*SubUser `json:"sub_users"`
+	}
+	GetTotalQuotaResponse {
+		TotalBandwidthLimit     int64 `json:"total_bandwidth_limit"`
+		TotalTrafficLimit       int64 `json:"total_traffic_limit"`
+		TotalBandwidthAllocated int64 `json:"total_bandwidth_allocated"`
+		TotalTrafficAllocated   int64 `json:"total_traffic_allocated"`
+		SubUserCount            int64 `json:"sub_user_count"`
 	}
 )
 
@@ -207,6 +228,22 @@ service api {
 	@doc "拉取socks5用户列表"
 	@handler ListSubUser
 	get /list returns (ListSubUserResponse)
+
+	@doc "编辑用户的流量配额与带宽限制"
+	@handler EditSubUserLimit
+	post /edit (EditSubUserLimitReq)
+
+	@doc "更新子账户状态"
+	@handler UpdateSubUserStatus
+	post /update-status (UpdateSubUserStatusReq)
+
+	@doc "获取无效的子用户列表"
+	@handler ListInvalidSubUser
+	get /list-invalid returns (ListInvalidSubUserResponse)
+
+	@doc "获取无效的子用户列表"
+	@handler GetTotalQuota
+	get /total-quota returns (GetTotalQuotaResponse)
 
 	@doc "拉取pops列表"
 	@handler ListPops

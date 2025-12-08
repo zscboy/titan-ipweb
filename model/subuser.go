@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -20,14 +21,20 @@ type SubUser struct {
 	TotalTrafficLimit int64  `redis:"total_traffic_limit"`
 	CreateTime        int64  `redis:"create_time"`
 	Status            string `redis:"status"`
+	StartTime         int64  `redis:"start_time"`
+	EndTime           int64  `redis:"end_time"`
 }
 
 func subUserKey(username string) string {
 	return fmt.Sprintf(redisKeySubUserTable, username)
 }
 
-func userSubUserKey(uuid string) string {
+func subUserListKey(uuid string) string {
 	return fmt.Sprintf(redisKeyUserSubUserZset, uuid)
+}
+
+func invalidSubUserListKey(uuid string) string {
+	return fmt.Sprintf(redisKeyInvalidSubUserZset, uuid)
 }
 
 func SaveSubUser(rdb *redis.Redis, subUser *SubUser) error {
@@ -43,12 +50,6 @@ func SaveSubUser(rdb *redis.Redis, subUser *SubUser) error {
 func RemoveSubUser(rdb *redis.Redis, uuid, subUsername string) error {
 	key := subUserKey(subUsername)
 	_, err := rdb.Del(key)
-	if err != nil {
-		return err
-	}
-
-	key = userSubUserKey(uuid)
-	_, err = rdb.Zrem(key, subUsername)
 	return err
 }
 
@@ -56,7 +57,14 @@ func GetSubUser(rdb *redis.Redis, username string) (*SubUser, error) {
 	key := subUserKey(username)
 	data, err := rdb.Hgetall(key)
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, nil
+		}
 		return nil, err
+	}
+
+	if len(data) == 0 {
+		return nil, nil
 	}
 
 	subUser := &SubUser{}
@@ -66,15 +74,73 @@ func GetSubUser(rdb *redis.Redis, username string) (*SubUser, error) {
 	return subUser, nil
 }
 
-func AddSubUser(rdb *redis.Redis, uuid string, subUsername string) error {
-	key := userSubUserKey(uuid)
+func AddSubUserZset(rdb *redis.Redis, uuid string, subUsername string) error {
+	key := subUserListKey(uuid)
 	_, err := rdb.Zadd(key, time.Now().Unix(), subUsername)
 	return err
 }
 
 // TODO: split by start and stop
-func GetUserSubUsers(ctx context.Context, rdb *redis.Redis, uuid string) ([]*SubUser, error) {
-	key := userSubUserKey(uuid)
+func GetSubUsers(ctx context.Context, rdb *redis.Redis, uuid string) ([]*SubUser, error) {
+	key := subUserListKey(uuid)
+	usernames, err := rdb.Zrange(key, 0, -1)
+	if err != nil {
+		return nil, err
+	}
+
+	pipe, err := rdb.TxPipeline()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, username := range usernames {
+		key := subUserKey(username)
+		pipe.HGetAll(ctx, key)
+	}
+
+	cmds, err := pipe.Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	subUsers := make([]*SubUser, 0, len(cmds))
+	for _, cmd := range cmds {
+		result, err := cmd.(*goredis.MapStringStringCmd).Result()
+		if err != nil {
+			logx.Errorf("ListNode parse result failed:%s", err.Error())
+			continue
+		}
+
+		subUser := SubUser{}
+		err = mapToStruct(result, &subUser)
+		if err != nil {
+			logx.Errorf("ListNode mapToStruct error:%s", err.Error())
+			continue
+		}
+
+		subUsers = append(subUsers, &subUser)
+	}
+
+	return subUsers, nil
+
+}
+
+func AddSubUserToInvalidList(rdb *redis.Redis, uuid string, subUsername string) error {
+	key := invalidSubUserListKey(uuid)
+	_, err := rdb.Zadd(key, time.Now().Unix(), subUsername)
+	if err != nil {
+		return err
+	}
+
+	key = subUserListKey(uuid)
+	_, err = rdb.Zrem(key, subUsername)
+	return err
+
+}
+
+// TODO: split by start and stop
+func GetInvalidSubUsers(ctx context.Context, rdb *redis.Redis, uuid string) ([]*SubUser, error) {
+	key := invalidSubUserListKey(uuid)
 	usernames, err := rdb.Zrange(key, 0, -1)
 	if err != nil {
 		return nil, err

@@ -12,29 +12,29 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type ListSubUserLogic struct {
+type ListInvalidSubUserLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-// 拉取socks5用户列表
-func NewListSubUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListSubUserLogic {
-	return &ListSubUserLogic{
+// 获取无效的子用户列表
+func NewListInvalidSubUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListInvalidSubUserLogic {
+	return &ListInvalidSubUserLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *ListSubUserLogic) ListSubUser() (resp *types.ListSubUserResponse, err error) {
+func (l *ListInvalidSubUserLogic) ListInvalidSubUser() (resp *types.ListInvalidSubUserResponse, err error) {
 	v := l.ctx.Value(middleware.AuthKey)
 	autCtxValue, ok := v.(middleware.AuthCtxValue)
 	if !ok {
 		return nil, fmt.Errorf("auth failed")
 	}
 
-	subUsers, err := model.GetSubUsers(context.Background(), l.svcCtx.Redis, autCtxValue.UserId)
+	subUsers, err := model.GetInvalidSubUsers(context.Background(), l.svcCtx.Redis, autCtxValue.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -55,5 +55,5 @@ func (l *ListSubUserLogic) ListSubUser() (resp *types.ListSubUserResponse, err e
 		users = append(users, user)
 	}
 
-	return &types.ListSubUserResponse{Users: users}, nil
+	return &types.ListInvalidSubUserResponse{Users: users}, nil
 }

@@ -40,15 +40,25 @@ func (l *DeleteSubUserLogic) DeleteSubUser(req *types.DeleteSubUserReq) error {
 		return fmt.Errorf("auth failed")
 	}
 
+	subUser, err := model.GetSubUser(l.svcCtx.Redis, req.Username)
+	if err != nil {
+		return err
+	}
+
+	if subUser == nil {
+		return fmt.Errorf("user %s not exist", req.Username)
+	}
+
 	if err := l.deleteSubUser(req); err != nil {
 		return err
 	}
 
-	if err := model.RemoveSubUser(l.svcCtx.Redis, autCtxValue.UserId, req.Username); err != nil {
+	if err := model.AddSubUserToInvalidList(l.svcCtx.Redis, autCtxValue.UserId, req.Username); err != nil {
 		return err
 	}
 
-	return nil
+	subUser.Status = subUserStatusStop
+	return model.SaveSubUser(l.svcCtx.Redis, subUser)
 }
 
 func (l *DeleteSubUserLogic) deleteSubUser(req *types.DeleteSubUserReq) error {
