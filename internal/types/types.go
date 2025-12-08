@@ -11,13 +11,13 @@ type BaseResponse struct {
 }
 
 type CreateSubUserReq struct {
-	Username          string        `json:"username"`
-	Password          string        `json:"password"`
-	PopId             string        `json:"pop_id"`
-	TrafficLimit      *TrafficLimit `json:"traffic_limit,optional"`
-	UploadRateLimit   int64         `json:"upload_rate_limit,default=655360"`
-	DownloadRateLimit int64         `json:"download_rate_limit,default=1310720"`
-	PeakBandwidth     int64         `json:"peak_bandwidth,default=13107200"`
+	Username          string `json:"username"`
+	Password          string `json:"password"`
+	PopId             string `json:"pop_id"`
+	UploadRateLimit   int64  `json:"upload_rate_limit,default=655360"`
+	DownloadRateLimit int64  `json:"download_rate_limit,default=1310720"`
+	PeakBandwidth     int64  `json:"peak_bandwidth,default=13107200"`
+	TotalTraffic      int64  `json:"total_traffic,default=1073741824000"`
 }
 
 type DeleteSubUserReq struct {

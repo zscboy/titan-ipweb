@@ -491,7 +491,8 @@
                 "pop_id",
                 "upload_rate_limit",
                 "download_rate_limit",
-                "peak_bandwidth"
+                "peak_bandwidth",
+                "total_traffic"
               ],
               "properties": {
                 "download_rate_limit": {
@@ -510,26 +511,10 @@
                 "pop_id": {
                   "type": "string"
                 },
-                "traffic_limit": {
-                  "type": "object",
-                  "required": [
-                    "start_time",
-                    "end_time",
-                    "total_traffic"
-                  ],
-                  "properties": {
-                    "end_time": {
-                      "type": "integer"
-                    },
-                    "start_time": {
-                      "type": "integer"
-                    },
-                    "total_traffic": {
-                      "type": "integer",
-                      "default": 1073741824000,
-                      "example": 1073741824000
-                    }
-                  }
+                "total_traffic": {
+                  "type": "integer",
+                  "default": 1073741824000,
+                  "example": 1073741824000
                 },
                 "upload_rate_limit": {
                   "type": "integer",
@@ -753,7 +738,7 @@
       }
     }
   },
-  "x-date": "2025-12-08 10:01:38",
+  "x-date": "2025-12-08 10:18:25",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"titan-ipweb/internal/middleware"
 	"titan-ipweb/internal/svc"
@@ -78,15 +79,12 @@ func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *t
 		DownloadRateLimit: req.DownloadRateLimit,
 	}
 
-	if req.TrafficLimit != nil {
-		traffic := &ippmclient.TrafficLimit{
-			StartTime:    req.TrafficLimit.StartTime,
-			EndTime:      req.TrafficLimit.EndTime,
-			TotalTraffic: req.TrafficLimit.TotalTraffic,
-		}
-		createUserReq.TrafficLimit = traffic
+	traffic := &ippmclient.TrafficLimit{
+		StartTime:    time.Now().Unix(),
+		EndTime:      time.Now().Add(30 * 24 * time.Hour).Unix(),
+		TotalTraffic: req.TotalTraffic,
 	}
-
+	createUserReq.TrafficLimit = traffic
 	buf, err := json.Marshal(createUserReq)
 	if err != nil {
 		return nil, fmt.Errorf("marshal error %v", err)
@@ -123,7 +121,7 @@ func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *t
 		return nil, fmt.Errorf("unmarshal error %v", err)
 	}
 
-	traffic := types.TrafficLimit{
+	trafficResp := types.TrafficLimit{
 		StartTime:    createUserResp.TrafficLimit.StartTime,
 		EndTime:      createUserResp.TrafficLimit.EndTime,
 		TotalTraffic: createUserResp.TrafficLimit.TotalTraffic,
@@ -132,7 +130,7 @@ func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *t
 	subUser := &types.SubUser{
 		Username:          createUserReq.UserName,
 		Password:          createUserReq.Password,
-		TrafficLimit:      &traffic,
+		TrafficLimit:      &trafficResp,
 		ServerAddress:     l.getSocks5Addrss(createUserReq.PopId),
 		UploadRateLimit:   createUserReq.UploadRateLimit,
 		DownloadRateLimit: createUserReq.DownloadRateLimit,

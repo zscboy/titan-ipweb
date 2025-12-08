@@ -110,7 +110,7 @@ type (
 		// the id of pop(Point of Presence)
 		PopId string `json:"pop_id"`
 		// if TrafficLimit is nil, will allocate 1 mouth and 1000GB traffic
-		TrafficLimit *TrafficLimit `json:"traffic_limit,optional"`
+		// TrafficLimit *TrafficLimit `json:"traffic_limit,optional"`
 		// if Route is nil, will use manual mode
 		// Route *Route `json:"route,optional"`
 		// default 5Mb/s, 0 unlimit
@@ -119,6 +119,7 @@ type (
 		DownloadRateLimit int64 `json:"download_rate_limit,default=1310720"`
 		// default 100Mb/s, 0 unlimit
 		PeakBandwidth int64 `json:"peak_bandwidth,default=13107200"`
+		TotalTraffic  int64 `json:"total_traffic,default=1073741824000"`
 	}
 	DeleteSubUserReq {
 		Username string `json:"username"`
