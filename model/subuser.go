@@ -20,6 +20,7 @@ type SubUser struct {
 	MaxBandwidthLimit int64  `redis:"max_bandwidth_limit"`
 	TotalTrafficLimit int64  `redis:"total_traffic_limit"`
 	CreateTime        int64  `redis:"create_time"`
+	DeprecatedTime    int64  `redis:"deprecated_time"`
 	Status            string `redis:"status"`
 	StartTime         int64  `redis:"start_time"`
 	EndTime           int64  `redis:"end_time"`
@@ -50,6 +51,18 @@ func SaveSubUser(rdb *redis.Redis, subUser *SubUser) error {
 func RemoveSubUser(rdb *redis.Redis, uuid, subUsername string) error {
 	key := subUserKey(subUsername)
 	_, err := rdb.Del(key)
+	if err != nil {
+		return err
+	}
+
+	key = subUserListKey(uuid)
+	_, err = rdb.Zrem(key, subUsername)
+	if err != nil {
+		return err
+	}
+
+	key = invalidSubUserListKey(uuid)
+	_, err = rdb.Zrem(key, subUsername)
 	return err
 }
 
@@ -62,7 +75,7 @@ func GetSubUser(rdb *redis.Redis, username string) (*SubUser, error) {
 		}
 		return nil, err
 	}
-
+	logx.Debugf("data:%v, key:%s, data len:%d", data, key, len(data))
 	if len(data) == 0 {
 		return nil, nil
 	}
@@ -80,10 +93,9 @@ func AddSubUserZset(rdb *redis.Redis, uuid string, subUsername string) error {
 	return err
 }
 
-// TODO: split by start and stop
-func GetSubUsers(ctx context.Context, rdb *redis.Redis, uuid string) ([]*SubUser, error) {
+func GetSubUsers(ctx context.Context, rdb *redis.Redis, uuid string, start, stop int) ([]*SubUser, error) {
 	key := subUserListKey(uuid)
-	usernames, err := rdb.Zrange(key, 0, -1)
+	usernames, err := rdb.Zrange(key, int64(start), int64(stop))
 	if err != nil {
 		return nil, err
 	}
@@ -139,9 +151,9 @@ func AddSubUserToInvalidList(rdb *redis.Redis, uuid string, subUsername string) 
 }
 
 // TODO: split by start and stop
-func GetInvalidSubUsers(ctx context.Context, rdb *redis.Redis, uuid string) ([]*SubUser, error) {
+func GetInvalidSubUsers(ctx context.Context, rdb *redis.Redis, uuid string, start, end int) ([]*SubUser, error) {
 	key := invalidSubUserListKey(uuid)
-	usernames, err := rdb.Zrange(key, 0, -1)
+	usernames, err := rdb.Zrange(key, int64(start), int64(end))
 	if err != nil {
 		return nil, err
 	}

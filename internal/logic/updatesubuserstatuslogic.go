@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	subUserStatusStart = "start"
-	subUserStatusStop  = "stop"
+	subUserStatusActive     = "active"
+	subUserStatusStop       = "stop"
+	subUserStatusDeprecated = "deprecated"
 )
 
 type UpdateSubUserStatusLogic struct {
@@ -45,19 +46,15 @@ func (l *UpdateSubUserStatusLogic) UpdateSubUserStatus(req *types.UpdateSubUserS
 		return fmt.Errorf("user %s not exist", req.Username)
 	}
 
-	if req.Status != subUserStatusStart && req.Status != subUserStatusStop {
-		return fmt.Errorf("user status %s is not %s or %s", req.Status, subUserStatusStart, subUserStatusStop)
+	if req.Status != subUserStatusActive && req.Status != subUserStatusStop {
+		return fmt.Errorf("user status %s is not %s or %s", req.Status, subUserStatusActive, subUserStatusStop)
 	}
 
 	if err := l.updateSubUserStatus(req); err != nil {
 		return err
 	}
 
-	if req.Status == subUserStatusStart {
-		subUser.Status = "active"
-	} else if req.Status == subUserStatusStop {
-		subUser.Status = "stop"
-	}
+	subUser.Status = req.Status
 
 	return model.SaveSubUser(l.svcCtx.Redis, subUser)
 }
@@ -66,7 +63,11 @@ func (l *UpdateSubUserStatusLogic) updateSubUserStatus(req *types.UpdateSubUserS
 	url := fmt.Sprintf("%s/user/startorstop", l.svcCtx.Config.IPPMServer)
 	startOrStopReq := ippmclient.StartOrStopUserReq{
 		UserName: req.Username,
-		Action:   req.Status,
+	}
+
+	startOrStopReq.Action = req.Status
+	if startOrStopReq.Action == subUserStatusActive {
+		startOrStopReq.Action = "start"
 	}
 
 	buf, err := json.Marshal(startOrStopReq)

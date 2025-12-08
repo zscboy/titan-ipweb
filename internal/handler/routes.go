@@ -18,16 +18,22 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.Header, serverCtx.UserAgent, serverCtx.Auth},
 			[]rest.Route{
 				{
-					// 创建socks5用户
+					// 创建子用户
 					Method:  http.MethodPost,
 					Path:    "/create",
 					Handler: CreateSubUserHandler(serverCtx),
 				},
 				{
-					// 删除socks5用户
+					// 删除子用户
 					Method:  http.MethodPost,
 					Path:    "/delete",
 					Handler: DeleteSubUserHandler(serverCtx),
+				},
+				{
+					// 废弃子用户
+					Method:  http.MethodPost,
+					Path:    "/deprecated",
+					Handler: DeprecatedSubUserHandler(serverCtx),
 				},
 				{
 					// 编辑用户的流量配额与带宽限制
@@ -36,16 +42,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: EditSubUserLimitHandler(serverCtx),
 				},
 				{
-					// 拉取socks5用户列表
+					// 拉取子用户列表
 					Method:  http.MethodGet,
 					Path:    "/list",
 					Handler: ListSubUserHandler(serverCtx),
 				},
 				{
-					// 获取无效的子用户列表
+					// 获取废弃的子用户列表
 					Method:  http.MethodGet,
-					Path:    "/list-invalid",
-					Handler: ListInvalidSubUserHandler(serverCtx),
+					Path:    "/list-deprecated",
+					Handler: ListDeprecatedSubUserHandler(serverCtx),
 				},
 				{
 					// 拉取pops列表
@@ -54,7 +60,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: ListPopsHandler(serverCtx),
 				},
 				{
-					// 获取无效的子用户列表
+					// 获取总的配额
 					Method:  http.MethodGet,
 					Path:    "/total-quota",
 					Handler: GetTotalQuotaHandler(serverCtx),

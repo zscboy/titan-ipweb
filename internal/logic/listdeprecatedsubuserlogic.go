@@ -12,29 +12,29 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type ListInvalidSubUserLogic struct {
+type ListDeprecatedSubUserLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-// 获取无效的子用户列表
-func NewListInvalidSubUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListInvalidSubUserLogic {
-	return &ListInvalidSubUserLogic{
+// 获取废弃的子用户列表
+func NewListDeprecatedSubUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListDeprecatedSubUserLogic {
+	return &ListDeprecatedSubUserLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *ListInvalidSubUserLogic) ListInvalidSubUser() (resp *types.ListInvalidSubUserResponse, err error) {
+func (l *ListDeprecatedSubUserLogic) ListDeprecatedSubUser(req *types.ListDeprecatedSubUserReq) (resp *types.ListDeprecatedSubUserResponse, err error) {
 	v := l.ctx.Value(middleware.AuthKey)
 	autCtxValue, ok := v.(middleware.AuthCtxValue)
 	if !ok {
 		return nil, fmt.Errorf("auth failed")
 	}
 
-	subUsers, err := model.GetInvalidSubUsers(context.Background(), l.svcCtx.Redis, autCtxValue.UserId)
+	subUsers, err := model.GetInvalidSubUsers(context.Background(), l.svcCtx.Redis, autCtxValue.UserId, req.Start, req.End)
 	if err != nil {
 		return nil, err
 	}
@@ -50,10 +50,11 @@ func (l *ListInvalidSubUserLogic) ListInvalidSubUser() (resp *types.ListInvalidS
 			UploadRateLimit:   subUser.UploadRateLimit,
 			DownloadRateLimit: subUser.DownloadRateLimit,
 			CreateTime:        subUser.CreateTime,
+			DeprecatedTime:    subUser.DeprecatedTime,
 			Status:            subUser.Status,
 		}
 		users = append(users, user)
 	}
 
-	return &types.ListInvalidSubUserResponse{Users: users}, nil
+	return &types.ListDeprecatedSubUserResponse{Users: users}, nil
 }

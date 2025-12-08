@@ -24,6 +24,10 @@ type DeleteSubUserReq struct {
 	Username string `json:"username"`
 }
 
+type DeprecatedSubUserReq struct {
+	Username string `json:"username"`
+}
+
 type EditSubUserLimitReq struct {
 	Username          string `json:"username"`
 	MaxBandwidthLimit *int64 `json:"max_bandwidth_limit,optional"`
@@ -38,16 +42,28 @@ type GetTotalQuotaResponse struct {
 	SubUserCount            int64 `json:"sub_user_count"`
 }
 
-type ListInvalidSubUserResponse struct {
+type ListDeprecatedSubUserReq struct {
+	Start int `json:"start"`
+	End   int `json:"end"`
+}
+
+type ListDeprecatedSubUserResponse struct {
 	Users []*SubUser `json:"sub_users"`
+	Total int        `json:"total"`
 }
 
 type ListPopsResponse struct {
 	Pops []*Pop `json:"pops"`
 }
 
+type ListSubUserReq struct {
+	Start int `json:"start"`
+	End   int `json:"end"`
+}
+
 type ListSubUserResponse struct {
 	Users []*SubUser `json:"sub_users"`
+	Total int        `json:"total"`
 }
 
 type LoginByGoogleRequest struct {
@@ -135,6 +151,7 @@ type SubUser struct {
 	UploadRateLimit   int64  `json:"upload_rate_limit"`
 	DownloadRateLimit int64  `json:"download_rate_limit"`
 	CreateTime        int64  `json:"create_time"`
+	DeprecatedTime    int64  `json:"deprecated_time"`
 	Status            string `json:"status"`
 	StartTime         int64
 	EndTime           int64
@@ -148,7 +165,7 @@ type TrafficLimit struct {
 
 type UpdateSubUserStatusReq struct {
 	Username string `json:"username"`
-	Status   string `json:"status" enums:"start,stop"`
+	Status   string `json:"status"`
 }
 
 type UserExistsReq struct {

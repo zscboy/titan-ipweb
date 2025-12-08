@@ -121,6 +121,9 @@ type (
 		MaxBandwidthLimit int64 `json:"max_bandwidth_limit,default=13107200"`
 		TotalTrafficLimit int64 `json:"total_traffic_limit,default=1073741824000"`
 	}
+	DeprecatedSubUserReq {
+		Username string `json:"username"`
+	}
 	DeleteSubUserReq {
 		Username string `json:"username"`
 	}
@@ -135,13 +138,19 @@ type (
 		UploadRateLimit   int64 `json:"upload_rate_limit"`
 		DownloadRateLimit int64 `json:"download_rate_limit"`
 		CreateTime        int64 `json:"create_time"`
+		DeprecatedTime    int64 `json:"deprecated_time"`
 		// active or stop
 		Status    string `json:"status"`
 		StartTime int64
 		EndTime   int64
 	}
+	ListSubUserReq {
+		Start int `json:"start"`
+		End   int `json:"end"`
+	}
 	ListSubUserResponse {
 		Users []*SubUser `json:"sub_users"`
+		Total int        `json:"total"`
 	}
 	Pop {
 		Name         string `json:"name"`
@@ -159,10 +168,15 @@ type (
 	}
 	UpdateSubUserStatusReq {
 		Username string `json:"username"`
-		Status   string `json:"status" enums:"start,stop"`
+		Status   string `json:"status"`
 	}
-	ListInvalidSubUserResponse {
+	ListDeprecatedSubUserReq {
+		Start int `json:"start"`
+		End   int `json:"end"`
+	}
+	ListDeprecatedSubUserResponse {
 		Users []*SubUser `json:"sub_users"`
+		Total int        `json:"total"`
 	}
 	GetTotalQuotaResponse {
 		TotalBandwidthLimit     int64 `json:"total_bandwidth_limit"`
@@ -217,17 +231,21 @@ service api {
 	middleware: Header,UserAgent,Auth
 )
 service api {
-	@doc "创建socks5用户"
+	@doc "创建子用户"
 	@handler CreateSubUser
 	post /create (CreateSubUserReq) returns (SubUser)
 
-	@doc "删除socks5用户"
+	@doc "删除子用户"
 	@handler DeleteSubUser
 	post /delete (DeleteSubUserReq)
 
-	@doc "拉取socks5用户列表"
+	@doc "废弃子用户"
+	@handler DeprecatedSubUser
+	post /deprecated (DeprecatedSubUserReq)
+
+	@doc "拉取子用户列表"
 	@handler ListSubUser
-	get /list returns (ListSubUserResponse)
+	get /list (ListSubUserReq) returns (ListSubUserResponse)
 
 	@doc "编辑用户的流量配额与带宽限制"
 	@handler EditSubUserLimit
@@ -237,11 +255,11 @@ service api {
 	@handler UpdateSubUserStatus
 	post /update-status (UpdateSubUserStatusReq)
 
-	@doc "获取无效的子用户列表"
-	@handler ListInvalidSubUser
-	get /list-invalid returns (ListInvalidSubUserResponse)
+	@doc "获取废弃的子用户列表"
+	@handler ListDeprecatedSubUser
+	get /list-deprecated (ListDeprecatedSubUserReq) returns (ListDeprecatedSubUserResponse)
 
-	@doc "获取无效的子用户列表"
+	@doc "获取总的配额"
 	@handler GetTotalQuota
 	get /total-quota returns (GetTotalQuotaResponse)
 

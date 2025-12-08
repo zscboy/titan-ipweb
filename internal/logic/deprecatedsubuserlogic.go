@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"titan-ipweb/internal/middleware"
 	"titan-ipweb/internal/svc"
@@ -17,22 +18,22 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type DeleteSubUserLogic struct {
+type DeprecatedSubUserLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-// 删除socks5用户
-func NewDeleteSubUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteSubUserLogic {
-	return &DeleteSubUserLogic{
+// 废弃子用户
+func NewDeprecatedSubUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeprecatedSubUserLogic {
+	return &DeprecatedSubUserLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *DeleteSubUserLogic) DeleteSubUser(req *types.DeleteSubUserReq) error {
+func (l *DeprecatedSubUserLogic) DeprecatedSubUser(req *types.DeprecatedSubUserReq) error {
 	logx.Debugf("DeleteUser %v", req)
 	v := l.ctx.Value(middleware.AuthKey)
 	autCtxValue, ok := v.(middleware.AuthCtxValue)
@@ -49,18 +50,20 @@ func (l *DeleteSubUserLogic) DeleteSubUser(req *types.DeleteSubUserReq) error {
 		return fmt.Errorf("user %s not exist", req.Username)
 	}
 
-	if subUser.Status == subUserStatusDeprecated {
-		return model.RemoveSubUser(l.svcCtx.Redis, autCtxValue.UserId, req.Username)
-	}
-
-	if err := l.deleteSubUser(req); err != nil {
+	if err := l.deprecatedSubUser(req); err != nil {
 		return err
 	}
 
-	return model.RemoveSubUser(l.svcCtx.Redis, autCtxValue.UserId, req.Username)
+	if err := model.AddSubUserToInvalidList(l.svcCtx.Redis, autCtxValue.UserId, req.Username); err != nil {
+		return err
+	}
+
+	subUser.Status = subUserStatusDeprecated
+	subUser.DeprecatedTime = time.Now().Unix()
+	return model.SaveSubUser(l.svcCtx.Redis, subUser)
 }
 
-func (l *DeleteSubUserLogic) deleteSubUser(req *types.DeleteSubUserReq) error {
+func (l *DeprecatedSubUserLogic) deprecatedSubUser(req *types.DeprecatedSubUserReq) error {
 	url := fmt.Sprintf("%s/user/delete", l.svcCtx.Config.IPPMServer)
 	deleteUserReq := ippmclient.DeleteUserReq{
 		UserName: req.Username,

@@ -3,10 +3,12 @@ package handler
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
+	"titan-ipweb/internal/handler/utils"
 	"titan-ipweb/internal/logic"
 	"titan-ipweb/internal/svc"
 	"titan-ipweb/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // 编辑用户的流量配额与带宽限制
@@ -21,9 +23,9 @@ func EditSubUserLimitHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := logic.NewEditSubUserLimitLogic(r.Context(), svcCtx)
 		err := l.EditSubUserLimit(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			httpx.OkJsonCtx(r.Context(), w, utils.Error(err))
 		} else {
-			httpx.Ok(w)
+			httpx.OkJsonCtx(r.Context(), w, utils.Success(nil))
 		}
 	}
 }

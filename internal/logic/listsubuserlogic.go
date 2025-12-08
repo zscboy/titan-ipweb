@@ -27,14 +27,14 @@ func NewListSubUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListS
 	}
 }
 
-func (l *ListSubUserLogic) ListSubUser() (resp *types.ListSubUserResponse, err error) {
+func (l *ListSubUserLogic) ListSubUser(req *types.ListSubUserReq) (resp *types.ListSubUserResponse, err error) {
 	v := l.ctx.Value(middleware.AuthKey)
 	autCtxValue, ok := v.(middleware.AuthCtxValue)
 	if !ok {
 		return nil, fmt.Errorf("auth failed")
 	}
 
-	subUsers, err := model.GetSubUsers(context.Background(), l.svcCtx.Redis, autCtxValue.UserId)
+	subUsers, err := model.GetSubUsers(context.Background(), l.svcCtx.Redis, autCtxValue.UserId, req.Start, req.End)
 	if err != nil {
 		return nil, err
 	}

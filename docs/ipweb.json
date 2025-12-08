@@ -546,6 +546,9 @@
                 "current_traffic": {
                   "type": "integer"
                 },
+                "deprecated_time": {
+                  "type": "integer"
+                },
                 "download_rate_limit": {
                   "type": "integer"
                 },
@@ -589,6 +592,45 @@
         ],
         "summary": "删除子用户",
         "operationId": "deleteSubUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "username"
+              ],
+              "properties": {
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/subuser/deprecated": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "废弃子用户",
+        "operationId": "deprecatedSubUser",
         "parameters": [
           {
             "name": "body",
@@ -670,6 +712,28 @@
         ],
         "summary": "拉取子用户列表",
         "operationId": "listSubUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "start",
+                "end"
+              ],
+              "properties": {
+                "end": {
+                  "type": "integer"
+                },
+                "start": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -690,6 +754,7 @@
                       "upload_rate_limit",
                       "download_rate_limit",
                       "create_time",
+                      "deprecated_time",
                       "status"
                     ],
                     "properties": {
@@ -703,6 +768,9 @@
                         "type": "integer"
                       },
                       "current_traffic": {
+                        "type": "integer"
+                      },
+                      "deprecated_time": {
                         "type": "integer"
                       },
                       "download_rate_limit": {
@@ -731,6 +799,9 @@
                       }
                     }
                   }
+                },
+                "total": {
+                  "type": "integer"
                 }
               }
             }
@@ -738,7 +809,7 @@
         }
       }
     },
-    "/api/subuser/list-invalid": {
+    "/api/subuser/list-deprecated": {
       "get": {
         "produces": [
           "application/json"
@@ -747,7 +818,29 @@
           "https"
         ],
         "summary": "获取废弃的子用户列表",
-        "operationId": "listInvalidSubUser",
+        "operationId": "listDeprecatedSubUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "start",
+                "end"
+              ],
+              "properties": {
+                "end": {
+                  "type": "integer"
+                },
+                "start": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -768,6 +861,7 @@
                       "upload_rate_limit",
                       "download_rate_limit",
                       "create_time",
+                      "deprecated_time",
                       "status"
                     ],
                     "properties": {
@@ -781,6 +875,9 @@
                         "type": "integer"
                       },
                       "current_traffic": {
+                        "type": "integer"
+                      },
+                      "deprecated_time": {
                         "type": "integer"
                       },
                       "download_rate_limit": {
@@ -809,6 +906,9 @@
                       }
                     }
                   }
+                },
+                "total": {
+                  "type": "integer"
                 }
               }
             }
@@ -945,7 +1045,7 @@
       }
     }
   },
-  "x-date": "2025-12-08 16:41:04",
+  "x-date": "2025-12-08 18:22:35",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
