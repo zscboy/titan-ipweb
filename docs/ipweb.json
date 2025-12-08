@@ -746,7 +746,7 @@
         "schemes": [
           "https"
         ],
-        "summary": "获取无效的子用户列表",
+        "summary": "获取废弃的子用户列表",
         "operationId": "listInvalidSubUser",
         "responses": {
           "200": {
@@ -872,7 +872,7 @@
         "schemes": [
           "https"
         ],
-        "summary": "获取无效的子用户列表",
+        "summary": "获取总的配额",
         "operationId": "getTotalQuota",
         "responses": {
           "200": {
@@ -945,7 +945,7 @@
       }
     }
   },
-  "x-date": "2025-12-08 16:27:20",
+  "x-date": "2025-12-08 16:38:23",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
