@@ -117,6 +117,8 @@ type (
 		UploadRateLimit int64 `json:"upload_rate_limit,default=655360"`
 		// default 10Mb/s, 0 unlimit
 		DownloadRateLimit int64 `json:"download_rate_limit,default=1310720"`
+		// default 100Mb/s, 0 unlimit
+		PeakBandwidth int64 `json:"peak_bandwidth,default=13107200"`
 	}
 	DeleteSubUserReq {
 		Username string `json:"username"`
@@ -129,8 +131,8 @@ type (
 		UploadRateLimit   int64         `json:"upload_rate_limit"`
 		DownloadRateLimit int64         `json:"download_rate_limit"`
 	}
-	ListSubUserRespone {
-		Users []*SubUser
+	ListSubUserResponse {
+		Users []*SubUser `json:"sub_users"`
 	}
 	Pop {
 		Name         string `json:"name"`
@@ -138,8 +140,8 @@ type (
 		Area         string `json:"area"`
 		Socks5Server string `json:"socks5_server"`
 	}
-	ListPopsRespone {
-		pops []*Pop `json:"pops"`
+	ListPopsResponse {
+		Pops []*Pop `json:"pops"`
 	}
 )
 
@@ -197,10 +199,10 @@ service api {
 
 	@doc "拉取socks5用户列表"
 	@handler ListSubUser
-	get /list returns (ListSubUserRespone)
+	get /list returns (ListSubUserResponse)
 
 	@doc "拉取pops列表"
 	@handler ListPops
-	get /pops returns (ListPopsRespone)
+	get /pops returns (ListPopsResponse)
 }
 

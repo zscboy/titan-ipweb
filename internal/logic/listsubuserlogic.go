@@ -27,7 +27,7 @@ func NewListSubUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListS
 	}
 }
 
-func (l *ListSubUserLogic) ListSubUser() (resp *types.ListSubUserRespone, err error) {
+func (l *ListSubUserLogic) ListSubUser() (resp *types.ListSubUserResponse, err error) {
 	v := l.ctx.Value(middleware.AuthKey)
 	autCtxValue, ok := v.(middleware.AuthCtxValue)
 	if !ok {
@@ -51,5 +51,5 @@ func (l *ListSubUserLogic) ListSubUser() (resp *types.ListSubUserRespone, err er
 		users = append(users, user)
 	}
 
-	return &types.ListSubUserRespone{Users: users}, nil
+	return &types.ListSubUserResponse{Users: users}, nil
 }

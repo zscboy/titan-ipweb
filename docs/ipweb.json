@@ -490,7 +490,8 @@
                 "password",
                 "pop_id",
                 "upload_rate_limit",
-                "download_rate_limit"
+                "download_rate_limit",
+                "peak_bandwidth"
               ],
               "properties": {
                 "download_rate_limit": {
@@ -500,6 +501,11 @@
                 },
                 "password": {
                   "type": "string"
+                },
+                "peak_bandwidth": {
+                  "type": "integer",
+                  "default": 13107200,
+                  "example": 13107200
                 },
                 "pop_id": {
                   "type": "string"
@@ -747,7 +753,7 @@
       }
     }
   },
-  "x-date": "2025-12-08 09:45:40",
+  "x-date": "2025-12-08 10:01:38",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

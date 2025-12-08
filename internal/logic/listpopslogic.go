@@ -29,11 +29,11 @@ func NewListPopsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListPops
 	}
 }
 
-func (l *ListPopsLogic) ListPops() (resp *types.ListPopsRespone, err error) {
+func (l *ListPopsLogic) ListPops() (resp *types.ListPopsResponse, err error) {
 	return l.listPops()
 }
 
-func (l *ListPopsLogic) listPops() (resp *types.ListPopsRespone, err error) {
+func (l *ListPopsLogic) listPops() (resp *types.ListPopsResponse, err error) {
 	url := fmt.Sprintf("%s/pops", l.svcCtx.Config.IPPMServer)
 
 	client := &http.Client{}
@@ -72,5 +72,5 @@ func (l *ListPopsLogic) listPops() (resp *types.ListPopsRespone, err error) {
 		pop := &types.Pop{ID: p.ID, Area: p.Area, Socks5Server: p.Socks5Addr}
 		pops = append(pops, pop)
 	}
-	return &types.ListPopsRespone{Pops: pops}, nil
+	return &types.ListPopsResponse{Pops: pops}, nil
 }

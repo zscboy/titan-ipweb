@@ -17,18 +17,19 @@ type CreateSubUserReq struct {
 	TrafficLimit      *TrafficLimit `json:"traffic_limit,optional"`
 	UploadRateLimit   int64         `json:"upload_rate_limit,default=655360"`
 	DownloadRateLimit int64         `json:"download_rate_limit,default=1310720"`
+	PeakBandwidth     int64         `json:"peak_bandwidth,default=13107200"`
 }
 
 type DeleteSubUserReq struct {
 	Username string `json:"username"`
 }
 
-type ListPopsRespone struct {
+type ListPopsResponse struct {
 	Pops []*Pop `json:"pops"`
 }
 
-type ListSubUserRespone struct {
-	Users []*SubUser
+type ListSubUserResponse struct {
+	Users []*SubUser `json:"sub_users"`
 }
 
 type LoginByGoogleRequest struct {
