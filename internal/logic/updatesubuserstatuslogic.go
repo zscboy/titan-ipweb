@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 
+	"titan-ipweb/internal/middleware"
 	"titan-ipweb/internal/svc"
 	"titan-ipweb/internal/types"
 	"titan-ipweb/ippmclient"
@@ -38,12 +39,23 @@ func NewUpdateSubUserStatusLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *UpdateSubUserStatusLogic) UpdateSubUserStatus(req *types.UpdateSubUserStatusReq) error {
+	logx.Debugf("DeleteUser %v", req)
+	v := l.ctx.Value(middleware.AuthKey)
+	autCtxValue, ok := v.(middleware.AuthCtxValue)
+	if !ok {
+		return fmt.Errorf("auth failed")
+	}
+
 	subUser, err := model.GetSubUser(l.svcCtx.Redis, req.Username)
 	if err != nil {
 		return err
 	}
 	if subUser == nil {
 		return fmt.Errorf("user %s not exist", req.Username)
+	}
+
+	if subUser.UserID != autCtxValue.UserId {
+		return fmt.Errorf("sub user %s not exist", req.Username)
 	}
 
 	if req.Status != subUserStatusActive && req.Status != subUserStatusStop {

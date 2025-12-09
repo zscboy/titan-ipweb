@@ -47,7 +47,15 @@ func (l *DeprecatedSubUserLogic) DeprecatedSubUser(req *types.DeprecatedSubUserR
 	}
 
 	if subUser == nil {
-		return fmt.Errorf("user %s not exist", req.Username)
+		return fmt.Errorf("sub user %s not exist", req.Username)
+	}
+
+	if subUser.UserID != autCtxValue.UserId {
+		return fmt.Errorf("sub user %s not exist", req.Username)
+	}
+
+	if subUser.Status == subUserStatusDeprecated {
+		return fmt.Errorf("sub user already deprecated")
 	}
 
 	if err := l.deprecatedSubUser(req); err != nil {
@@ -60,7 +68,19 @@ func (l *DeprecatedSubUserLogic) DeprecatedSubUser(req *types.DeprecatedSubUserR
 
 	subUser.Status = subUserStatusDeprecated
 	subUser.DeprecatedTime = time.Now().Unix()
-	return model.SaveSubUser(l.svcCtx.Redis, subUser)
+	if err := model.SaveSubUser(l.svcCtx.Redis, subUser); err != nil {
+		return err
+	}
+
+	user, err := model.GetUser(l.svcCtx.Redis, autCtxValue.UserId)
+	if err != nil {
+		return err
+	}
+
+	user.MaxBandwidthAllocated -= subUser.MaxBandwidthLimit
+	user.TotalTrafficAllocated -= subUser.TotalTrafficLimit
+
+	return model.SaveUser(l.svcCtx.Redis, user)
 }
 
 func (l *DeprecatedSubUserLogic) deprecatedSubUser(req *types.DeprecatedSubUserReq) error {

@@ -9,6 +9,9 @@ TokenAuth:
 Redis:
   Host: 127.0.0.1:6379
 IPPMServer: http://59.37.137.170:41004
+Quota:
+  MaxBandwidthLimit: 131072000
+  TotalTrafficLimit: 21990232555520
 Log:
   #Mode: file
   stat: false

@@ -49,6 +49,10 @@ func (l *DeleteSubUserLogic) DeleteSubUser(req *types.DeleteSubUserReq) error {
 		return fmt.Errorf("user %s not exist", req.Username)
 	}
 
+	if subUser.UserID != autCtxValue.UserId {
+		return fmt.Errorf("user %s not exist", req.Username)
+	}
+
 	if subUser.Status == subUserStatusDeprecated {
 		return model.RemoveSubUser(l.svcCtx.Redis, autCtxValue.UserId, req.Username)
 	}

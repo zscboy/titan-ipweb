@@ -52,6 +52,18 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 		return nil, err
 	}
 
+	if user == nil {
+		return nil, fmt.Errorf("user not exist, please login again")
+	}
+
+	// update user quota
+	user.MaxBandwidthAllocated += req.MaxBandwidthLimit
+	user.TotalTrafficAllocated += req.TotalTrafficLimit
+
+	if user.MaxBandwidthLimit < user.MaxBandwidthAllocated {
+		return nil, fmt.Errorf("not enough bandwidth allocate for user %s", req.Username)
+	}
+
 	req.Username = createSubUsername(user.Index, req.Username)
 
 	sUser, err := model.GetSubUser(l.svcCtx.Redis, req.Username)
@@ -77,6 +89,7 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 		DownloadRateLimit: createUserResp.DownloadRateLimit,
 		CreateTime:        createUserResp.CreateTime,
 		Status:            createUserResp.Status,
+		UserID:            user.UUID,
 	}
 
 	if err := model.SaveSubUser(l.svcCtx.Redis, subUser); err != nil {
@@ -87,9 +100,6 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 		return nil, err
 	}
 
-	// update user quota
-	user.TotalBandwidthAllocated = createUserResp.MaxBandwidthLimit
-	user.TotalTrafficAllocated = createUserResp.TotalTrafficLimit
 	if err := model.SaveUser(l.svcCtx.Redis, user); err != nil {
 		return nil, err
 	}

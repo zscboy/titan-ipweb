@@ -62,7 +62,13 @@ func (l *RegisterLogic) Register(req *types.UserRegisterReq) (resp *types.UserRe
 		return nil, err
 	}
 
-	user := &model.User{UUID: res.UserUuid, Email: req.Email, Index: index, TotalBandwidthLimit: l.svcCtx.Config.Quota.TotalTrafficLimit}
+	user := &model.User{
+		UUID:              res.UserUuid,
+		Email:             req.Email,
+		Index:             index,
+		MaxBandwidthLimit: l.svcCtx.Config.Quota.MaxBandwidthLimit,
+		TotalTrafficLimit: l.svcCtx.Config.Quota.TotalTrafficLimit,
+	}
 
 	if err := model.SaveUser(l.svcCtx.Redis, user); err != nil {
 		return nil, err

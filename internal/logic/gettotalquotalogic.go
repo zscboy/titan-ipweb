@@ -34,19 +34,23 @@ func (l *GetTotalQuotaLogic) GetTotalQuota() (resp *types.GetTotalQuotaResponse,
 		return nil, fmt.Errorf("auth failed")
 	}
 
-	subUserCount, err := model.SubUserCount(l.svcCtx.Redis, autCtxValue.UserId)
-	if err != nil {
-		return nil, err
-	}
-
 	user, err := model.GetUser(l.svcCtx.Redis, autCtxValue.UserId)
 	if err != nil {
 		return nil, err
 	}
 
+	if user == nil {
+		return nil, fmt.Errorf("user not exist, please login again")
+	}
+
+	subUserCount, err := model.SubUserCount(l.svcCtx.Redis, autCtxValue.UserId)
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.GetTotalQuotaResponse{
-			TotalBandwidthLimit:     user.TotalBandwidthLimit,
-			TotalBandwidthAllocated: user.TotalBandwidthAllocated,
+			TotalBandwidthLimit:     user.MaxBandwidthLimit,
+			TotalBandwidthAllocated: user.MaxBandwidthAllocated,
 			TotalTrafficLimit:       user.TotalTrafficLimit,
 			TotalTrafficAllocated:   user.TotalTrafficAllocated,
 			SubUserCount:            int64(subUserCount),

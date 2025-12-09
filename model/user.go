@@ -8,13 +8,13 @@ import (
 )
 
 type User struct {
-	UUID                    string `redis:"uuid"`
-	Email                   string `redis:"email"`
-	Index                   int64  `redis:"index"`
-	TotalBandwidthLimit     int64  `redis:"total_bandwidth_limit"`
-	TotalBandwidthAllocated int64  `redis:"total_bandwidth_allocated"`
-	TotalTrafficLimit       int64  `redis:"total_traffic_limit"`
-	TotalTrafficAllocated   int64  `redis:"total_traffic_allocated"`
+	UUID                  string `redis:"uuid"`
+	Email                 string `redis:"email"`
+	Index                 int64  `redis:"index"`
+	MaxBandwidthLimit     int64  `redis:"max_bandwidth_limit"`
+	MaxBandwidthAllocated int64  `redis:"max_bandwidth_allocated"`
+	TotalTrafficLimit     int64  `redis:"total_traffic_limit"`
+	TotalTrafficAllocated int64  `redis:"total_traffic_allocated"`
 }
 
 func userKey(uuid string) string {
