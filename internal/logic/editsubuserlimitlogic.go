@@ -40,6 +40,15 @@ func (l *EditSubUserLimitLogic) EditSubUserLimit(req *types.EditSubUserLimitReq)
 		return fmt.Errorf("auth failed")
 	}
 
+	if req.MaxBandwidthLimit == nil && req.TotalTrafficLimit == nil {
+		return fmt.Errorf("bandwidth and traffic can not empty")
+	}
+
+	user, err := model.GetUser(l.svcCtx.Redis, autCtxValue.UserId)
+	if err != nil {
+		return err
+	}
+
 	subUser, err := model.GetSubUser(l.svcCtx.Redis, req.Username)
 	if err != nil {
 		return err
@@ -52,19 +61,33 @@ func (l *EditSubUserLimitLogic) EditSubUserLimit(req *types.EditSubUserLimitReq)
 		return fmt.Errorf("sub user %s not exist", req.Username)
 	}
 
-	if err := l.editSubUserLimit(req, subUser); err != nil {
-		return err
-	}
-
 	if req.MaxBandwidthLimit != nil {
+		user.MaxBandwidthAllocated = user.MaxBandwidthAllocated + (*req.MaxBandwidthLimit - subUser.MaxBandwidthLimit)
 		subUser.MaxBandwidthLimit = *req.MaxBandwidthLimit
 	}
 
 	if req.TotalTrafficLimit != nil {
+		user.TotalTrafficAllocated = user.TotalTrafficAllocated + (*req.TotalTrafficLimit - subUser.TotalTrafficLimit)
 		subUser.TotalTrafficLimit = *req.TotalTrafficLimit
 	}
 
-	return model.SaveSubUser(l.svcCtx.Redis, subUser)
+	if user.MaxBandwidthAllocated > user.MaxBandwidthLimit {
+		return fmt.Errorf("cannot allocate more than the maximum bandwidth")
+	}
+
+	if user.TotalTrafficLimit > user.TotalTrafficAllocated {
+		return fmt.Errorf("cannot allocate more than the maximum traffic")
+	}
+
+	if err := l.editSubUserLimit(req, subUser); err != nil {
+		return err
+	}
+
+	if err := model.SaveSubUser(l.svcCtx.Redis, subUser); err != nil {
+		return err
+	}
+
+	return model.SaveUser(l.svcCtx.Redis, user)
 }
 
 func (l *EditSubUserLimitLogic) editSubUserLimit(req *types.EditSubUserLimitReq, subUser *model.SubUser) error {
@@ -104,7 +127,7 @@ func (l *EditSubUserLimitLogic) editSubUserLimit(req *types.EditSubUserLimitReq,
 	if httpResp.StatusCode != http.StatusOK {
 		data, _ := io.ReadAll(httpResp.Body)
 		if len(data) != 0 {
-			return fmt.Errorf(string(data))
+			return fmt.Errorf("%s", string(data))
 		}
 		return fmt.Errorf("ip manager server response status code %d", httpResp.StatusCode)
 	}

@@ -103,6 +103,7 @@ type Pop struct {
 	Name         string `json:"name"`
 	ID           string `json:"id"`
 	Area         string `json:"area"`
+	CountryCode  string `json:"country_code"`
 	Socks5Server string `json:"socks5_server"`
 }
 
