@@ -714,24 +714,16 @@
         "operationId": "listSubUser",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "start",
-                "end"
-              ],
-              "properties": {
-                "end": {
-                  "type": "integer"
-                },
-                "start": {
-                  "type": "integer"
-                }
-              }
-            }
+            "type": "integer",
+            "name": "start",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "end",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -821,24 +813,16 @@
         "operationId": "listDeprecatedSubUser",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "start",
-                "end"
-              ],
-              "properties": {
-                "end": {
-                  "type": "integer"
-                },
-                "start": {
-                  "type": "integer"
-                }
-              }
-            }
+            "type": "integer",
+            "name": "start",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "end",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -1045,7 +1029,7 @@
       }
     }
   },
-  "x-date": "2025-12-08 18:22:35",
+  "x-date": "2025-12-09 09:35:29",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
