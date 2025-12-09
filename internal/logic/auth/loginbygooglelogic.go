@@ -38,13 +38,19 @@ func (l *LoginByGoogleLogic) LoginByGoogle(req *types.LoginByGoogleRequest) (res
 		return nil, err
 	}
 
-	user, err := model.HGetUser(l.svcCtx.Redis, res.UserUuid)
+	user, err := model.GetUser(l.svcCtx.Redis, res.UserUuid)
 	if err != nil {
 		return nil, err
 	}
 
 	if user == nil {
-		if err := model.HSetUser(l.svcCtx.Redis, &model.User{UUID: res.UserUuid, Email: res.Email}); err != nil {
+		index, err := model.UserIndex(l.svcCtx.Redis)
+		if err != nil {
+			return nil, err
+		}
+
+		user := &model.User{UUID: res.UserUuid, Email: res.Email, Index: index, TotalBandwidthLimit: l.svcCtx.Config.Quota.TotalTrafficLimit}
+		if err := model.SaveUser(l.svcCtx.Redis, user); err != nil {
 			return nil, err
 		}
 	}

@@ -26,6 +26,10 @@ type CreateSubUserLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
+func createSubUsername(index int64, username string) string {
+	return fmt.Sprintf("%05d_%s", index, username)
+}
+
 // 创建socks5用户
 func NewCreateSubUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CreateSubUserLogic {
 	return &CreateSubUserLogic{
@@ -43,11 +47,18 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 		return nil, fmt.Errorf("auth failed")
 	}
 
-	user, err := model.GetSubUser(l.svcCtx.Redis, req.Username)
+	user, err := model.GetUser(l.svcCtx.Redis, autCtxValue.UserId)
 	if err != nil {
 		return nil, err
 	}
-	if user != nil {
+
+	req.Username = createSubUsername(user.Index, req.Username)
+
+	sUser, err := model.GetSubUser(l.svcCtx.Redis, req.Username)
+	if err != nil {
+		return nil, err
+	}
+	if sUser != nil {
 		return nil, fmt.Errorf("user %s already exist", req.Username)
 	}
 
@@ -72,7 +83,14 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 		return nil, err
 	}
 
-	if err := model.AddSubUserZset(l.svcCtx.Redis, autCtxValue.UserId, subUser.Username); err != nil {
+	if err := model.AddSubUserToList(l.svcCtx.Redis, autCtxValue.UserId, subUser.Username); err != nil {
+		return nil, err
+	}
+
+	// update user quota
+	user.TotalBandwidthAllocated = createUserResp.MaxBandwidthLimit
+	user.TotalTrafficAllocated = createUserResp.TotalTrafficLimit
+	if err := model.SaveUser(l.svcCtx.Redis, user); err != nil {
 		return nil, err
 	}
 

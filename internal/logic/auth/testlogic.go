@@ -30,13 +30,13 @@ func (l *TestLogic) Test() (resp string, err error) {
 	uuid := "ebcdba5c-d1b1-11f0-9f28-afc4dc85d792"
 	email := "zscboy@gmail.com"
 
-	user, err := model.HGetUser(l.svcCtx.Redis, uuid)
+	user, err := model.GetUser(l.svcCtx.Redis, uuid)
 	if err != nil {
 		return "", err
 	}
 
 	if user == nil {
-		if err := model.HSetUser(l.svcCtx.Redis, &model.User{UUID: uuid, Email: email}); err != nil {
+		if err := model.SaveUser(l.svcCtx.Redis, &model.User{UUID: uuid, Email: email}); err != nil {
 			return "", err
 		}
 	}

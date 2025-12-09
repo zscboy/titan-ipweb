@@ -34,6 +34,11 @@ func (l *ListDeprecatedSubUserLogic) ListDeprecatedSubUser(req *types.ListDeprec
 		return nil, fmt.Errorf("auth failed")
 	}
 
+	total, err := model.DeprecatedSubUserCount(l.svcCtx.Redis, autCtxValue.UserId)
+	if err != nil {
+		return nil, err
+	}
+
 	subUsers, err := model.GetInvalidSubUsers(context.Background(), l.svcCtx.Redis, autCtxValue.UserId, req.Start, req.End)
 	if err != nil {
 		return nil, err
@@ -56,5 +61,5 @@ func (l *ListDeprecatedSubUserLogic) ListDeprecatedSubUser(req *types.ListDeprec
 		users = append(users, user)
 	}
 
-	return &types.ListDeprecatedSubUserResponse{Users: users}, nil
+	return &types.ListDeprecatedSubUserResponse{Users: users, Total: total}, nil
 }

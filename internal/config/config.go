@@ -13,9 +13,15 @@ type Config struct {
 	Redis     redis.RedisConf
 	// IP pop manager server
 	IPPMServer string
+	Quota      Quota
 }
 
 type TokenAuth struct {
 	AccessSecret string
 	AccessExpire string `json:",default='24h'"`
+}
+
+type Quota struct {
+	MaxBandwidthLimit int64
+	TotalTrafficLimit int64
 }

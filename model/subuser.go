@@ -34,11 +34,19 @@ func subUserListKey(uuid string) string {
 	return fmt.Sprintf(redisKeyUserSubUserZset, uuid)
 }
 
-func invalidSubUserListKey(uuid string) string {
+func deprecatedSubUserListKey(uuid string) string {
 	return fmt.Sprintf(redisKeyInvalidSubUserZset, uuid)
 }
 
 func SaveSubUser(rdb *redis.Redis, subUser *SubUser) error {
+	if subUser == nil {
+		return fmt.Errorf("subUser is nil")
+	}
+
+	if subUser.Username == "" {
+		return fmt.Errorf("empty Username")
+	}
+
 	m, err := structToMap(subUser)
 	if err != nil {
 		return err
@@ -61,7 +69,7 @@ func RemoveSubUser(rdb *redis.Redis, uuid, subUsername string) error {
 		return err
 	}
 
-	key = invalidSubUserListKey(uuid)
+	key = deprecatedSubUserListKey(uuid)
 	_, err = rdb.Zrem(key, subUsername)
 	return err
 }
@@ -75,7 +83,7 @@ func GetSubUser(rdb *redis.Redis, username string) (*SubUser, error) {
 		}
 		return nil, err
 	}
-	logx.Debugf("data:%v, key:%s, data len:%d", data, key, len(data))
+
 	if len(data) == 0 {
 		return nil, nil
 	}
@@ -87,7 +95,7 @@ func GetSubUser(rdb *redis.Redis, username string) (*SubUser, error) {
 	return subUser, nil
 }
 
-func AddSubUserZset(rdb *redis.Redis, uuid string, subUsername string) error {
+func AddSubUserToList(rdb *redis.Redis, uuid string, subUsername string) error {
 	key := subUserListKey(uuid)
 	_, err := rdb.Zadd(key, time.Now().Unix(), subUsername)
 	return err
@@ -138,7 +146,7 @@ func GetSubUsers(ctx context.Context, rdb *redis.Redis, uuid string, start, stop
 }
 
 func AddSubUserToInvalidList(rdb *redis.Redis, uuid string, subUsername string) error {
-	key := invalidSubUserListKey(uuid)
+	key := deprecatedSubUserListKey(uuid)
 	_, err := rdb.Zadd(key, time.Now().Unix(), subUsername)
 	if err != nil {
 		return err
@@ -152,7 +160,7 @@ func AddSubUserToInvalidList(rdb *redis.Redis, uuid string, subUsername string) 
 
 // TODO: split by start and stop
 func GetInvalidSubUsers(ctx context.Context, rdb *redis.Redis, uuid string, start, end int) ([]*SubUser, error) {
-	key := invalidSubUserListKey(uuid)
+	key := deprecatedSubUserListKey(uuid)
 	usernames, err := rdb.Zrange(key, int64(start), int64(end))
 	if err != nil {
 		return nil, err
@@ -193,4 +201,14 @@ func GetInvalidSubUsers(ctx context.Context, rdb *redis.Redis, uuid string, star
 
 	return subUsers, nil
 
+}
+
+func SubUserCount(rdb *redis.Redis, uuid string) (int, error) {
+	key := subUserListKey(uuid)
+	return rdb.Zcard(key)
+}
+
+func DeprecatedSubUserCount(rdb *redis.Redis, uuid string) (int, error) {
+	key := deprecatedSubUserListKey(uuid)
+	return rdb.Zcard(key)
 }

@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -9,11 +8,20 @@ import (
 )
 
 type User struct {
-	UUID  string `json:"uuid"`
-	Email string `json:"email"`
+	UUID                    string `redis:"uuid"`
+	Email                   string `redis:"email"`
+	Index                   int64  `redis:"index"`
+	TotalBandwidthLimit     int64  `redis:"total_bandwidth_limit"`
+	TotalBandwidthAllocated int64  `redis:"total_bandwidth_allocated"`
+	TotalTrafficLimit       int64  `redis:"total_traffic_limit"`
+	TotalTrafficAllocated   int64  `redis:"total_traffic_allocated"`
 }
 
-func HSetUser(rdb *redis.Redis, user *User) error {
+func userKey(uuid string) string {
+	return fmt.Sprintf(redisKeyUserTable, uuid)
+}
+
+func SaveUser(rdb *redis.Redis, user *User) error {
 	if user == nil {
 		return fmt.Errorf("user is nil")
 	}
@@ -21,21 +29,23 @@ func HSetUser(rdb *redis.Redis, user *User) error {
 		return fmt.Errorf("empty uuid")
 	}
 
-	data, err := json.Marshal(user)
+	m, err := structToMap(user)
 	if err != nil {
 		return err
 	}
 
-	return rdb.Hset(redisKeyUserTable, user.UUID, string(data))
-
+	key := userKey(user.UUID)
+	return rdb.Hmset(key, m)
 }
 
-func HGetUser(rdb *redis.Redis, uuid string) (*User, error) {
+func GetUser(rdb *redis.Redis, uuid string) (*User, error) {
 	if uuid == "" {
 		return nil, fmt.Errorf("empty uuid")
 	}
 
-	val, err := rdb.Hget(redisKeyUserTable, uuid)
+	key := userKey(uuid)
+
+	data, err := rdb.Hgetall(key)
 	if errors.Is(err, redis.Nil) { // key not found
 		return nil, nil
 	}
@@ -43,10 +53,14 @@ func HGetUser(rdb *redis.Redis, uuid string) (*User, error) {
 		return nil, err
 	}
 
-	var user User
-	if err := json.Unmarshal([]byte(val), &user); err != nil {
+	if len(data) == 0 {
+		return nil, nil
+	}
+
+	user := &User{}
+	if err := mapToStruct(data, user); err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	return user, nil
 }

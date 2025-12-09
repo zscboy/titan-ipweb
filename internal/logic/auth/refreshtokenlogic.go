@@ -38,7 +38,7 @@ func (l *RefreshTokenLogic) RefreshToken(req *types.RefreshTokenRequest) (resp *
 		return nil, err
 	}
 
-	user, err := model.HGetUser(l.svcCtx.Redis, res.UserUuid)
+	user, err := model.GetUser(l.svcCtx.Redis, res.UserUuid)
 	if err != nil {
 		return nil, err
 	}

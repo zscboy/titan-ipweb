@@ -34,6 +34,11 @@ func (l *ListSubUserLogic) ListSubUser(req *types.ListSubUserReq) (resp *types.L
 		return nil, fmt.Errorf("auth failed")
 	}
 
+	total, err := model.SubUserCount(l.svcCtx.Redis, autCtxValue.UserId)
+	if err != nil {
+		return nil, err
+	}
+
 	subUsers, err := model.GetSubUsers(context.Background(), l.svcCtx.Redis, autCtxValue.UserId, req.Start, req.End)
 	if err != nil {
 		return nil, err
@@ -55,5 +60,5 @@ func (l *ListSubUserLogic) ListSubUser(req *types.ListSubUserReq) (resp *types.L
 		users = append(users, user)
 	}
 
-	return &types.ListSubUserResponse{Users: users}, nil
+	return &types.ListSubUserResponse{Users: users, Total: total}, nil
 }

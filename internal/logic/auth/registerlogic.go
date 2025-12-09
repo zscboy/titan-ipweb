@@ -57,7 +57,14 @@ func (l *RegisterLogic) Register(req *types.UserRegisterReq) (resp *types.UserRe
 		return nil, err
 	}
 
-	if err := model.HSetUser(l.svcCtx.Redis, &model.User{UUID: res.UserUuid, Email: req.Email}); err != nil {
+	index, err := model.UserIndex(l.svcCtx.Redis)
+	if err != nil {
+		return nil, err
+	}
+
+	user := &model.User{UUID: res.UserUuid, Email: req.Email, Index: index, TotalBandwidthLimit: l.svcCtx.Config.Quota.TotalTrafficLimit}
+
+	if err := model.SaveUser(l.svcCtx.Redis, user); err != nil {
 		return nil, err
 	}
 

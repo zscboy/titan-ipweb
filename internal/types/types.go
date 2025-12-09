@@ -43,8 +43,8 @@ type GetTotalQuotaResponse struct {
 }
 
 type ListDeprecatedSubUserReq struct {
-	Start int `json:"start"`
-	End   int `json:"end"`
+	Start int `form:"start"`
+	End   int `form:"end"`
 }
 
 type ListDeprecatedSubUserResponse struct {
@@ -57,8 +57,8 @@ type ListPopsResponse struct {
 }
 
 type ListSubUserReq struct {
-	Start int `json:"start"`
-	End   int `json:"end"`
+	Start int `form:"start"`
+	End   int `form:"end"`
 }
 
 type ListSubUserResponse struct {

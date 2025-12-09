@@ -145,8 +145,8 @@ type (
 		EndTime   int64
 	}
 	ListSubUserReq {
-		Start int `json:"start"`
-		End   int `json:"end"`
+		Start int `form:"start"`
+		End   int `form:"end"`
 	}
 	ListSubUserResponse {
 		Users []*SubUser `json:"sub_users"`
@@ -171,8 +171,8 @@ type (
 		Status   string `json:"status"`
 	}
 	ListDeprecatedSubUserReq {
-		Start int `json:"start"`
-		End   int `json:"end"`
+		Start int `form:"start"`
+		End   int `form:"end"`
 	}
 	ListDeprecatedSubUserResponse {
 		Users []*SubUser `json:"sub_users"`

@@ -2,9 +2,12 @@ package logic
 
 import (
 	"context"
+	"fmt"
 
+	"titan-ipweb/internal/middleware"
 	"titan-ipweb/internal/svc"
 	"titan-ipweb/internal/types"
+	"titan-ipweb/model"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,5 +28,28 @@ func NewGetTotalQuotaLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 }
 
 func (l *GetTotalQuotaLogic) GetTotalQuota() (resp *types.GetTotalQuotaResponse, err error) {
-	return &types.GetTotalQuotaResponse{}, nil
+	v := l.ctx.Value(middleware.AuthKey)
+	autCtxValue, ok := v.(middleware.AuthCtxValue)
+	if !ok {
+		return nil, fmt.Errorf("auth failed")
+	}
+
+	subUserCount, err := model.SubUserCount(l.svcCtx.Redis, autCtxValue.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := model.GetUser(l.svcCtx.Redis, autCtxValue.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.GetTotalQuotaResponse{
+			TotalBandwidthLimit:     user.TotalBandwidthLimit,
+			TotalBandwidthAllocated: user.TotalBandwidthAllocated,
+			TotalTrafficLimit:       user.TotalTrafficLimit,
+			TotalTrafficAllocated:   user.TotalTrafficAllocated,
+			SubUserCount:            int64(subUserCount),
+		},
+		nil
 }
