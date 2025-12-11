@@ -735,16 +735,16 @@
                   "description": "峰值带宽",
                   "type": "integer"
                 },
-                "total_bandwidth_allocated": {
-                  "description": "已用流量",
-                  "type": "integer"
-                },
                 "total_traffic_allocated": {
-                  "description": "流量配额分配",
+                  "description": "已分配流量",
                   "type": "integer"
                 },
                 "total_traffic_limit": {
                   "description": "总流量配额",
+                  "type": "integer"
+                },
+                "traffic_used": {
+                  "description": "已用流量",
                   "type": "integer"
                 }
               }
@@ -1495,7 +1495,7 @@
       }
     }
   },
-  "x-date": "2025-12-11 14:31:09",
+  "x-date": "2025-12-11 14:42:55",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
