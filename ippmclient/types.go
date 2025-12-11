@@ -7,6 +7,21 @@ type AddBlackListReq struct {
 	NodeID string `json:"node_id"`
 }
 
+type AllStatsPer5MinReq struct {
+	PopID   string `form:"popid"`
+	Minutes int32  `form:"minutes"`
+}
+
+type AllStatsPerDayReq struct {
+	PopID string `form:"popid"`
+	Days  int32  `form:"days"`
+}
+
+type AllStatsPerHourReq struct {
+	PopID string `form:"popid"`
+	Hours int32  `form:"hours"`
+}
+
 type CreateUserReq struct {
 	UserName          string        `json:"user_name"`
 	Password          string        `json:"password"`
@@ -135,6 +150,16 @@ type StartOrStopUserReq struct {
 	Action   string `json:"action"`
 }
 
+type StatPoint struct {
+	Timestamp int64 `json:"timestamp"`
+	Bandwidth int64 `json:"bandwidth"`
+	Traffic   int64 `json:"traffic'`
+}
+
+type StatsResp struct {
+	Stats []*StatPoint `json:"stats"`
+}
+
 type SwitchUserRouteNodeReq struct {
 	UserName string `json:"user_name"`
 	NodeId   string `json:"node_id, optional"`
@@ -162,4 +187,19 @@ type User struct {
 type UserOperationResp struct {
 	Success bool   `json:"success"`
 	ErrMsg  string `json:"err_msg"`
+}
+
+type UserStats5PerMinReq struct {
+	Username string `form:"username"`
+	Minutes  int32  `form:"minutes"`
+}
+
+type UserStatsPerDayReq struct {
+	Username string `form:"username"`
+	Days     int32  `form:"days"`
+}
+
+type UserStatsPerHourReq struct {
+	Username string `form:"username"`
+	Hours    int32  `form:"hours"`
 }

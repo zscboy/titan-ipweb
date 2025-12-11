@@ -186,6 +186,64 @@ type (
 		TotalTrafficAllocated   int64 `json:"total_traffic_allocated"`
 		SubUserCount            int64 `json:"sub_user_count"`
 	}
+	// 子账号数量
+	SubUserCount {
+		Active     int `json:"active"`
+		Stop       int `json:"stop"`
+		Deprecated int `json:"deprecated"`
+	}
+	// 统计概要
+	GetStatSummaryResponse {
+		TotalTrafficLimit     int64         `json:"total_traffic_limit"`
+		TotalTrafficAllocated int64         `json:"total_traffic_allocated"`
+		TrafficUsed           int64         `json:"total_bandwidth_allocated"`
+		CurrentBandwidth      int64         `json:"current_bandwidth"`
+		TopBandwidth          int           `json:"top_bandwidth"`
+		SubUserCount          *SubUserCount `json:"subuser_count"`
+		MaxBandwidthLimit     int64         `json:"max_bandwidth_limit"`
+		MaxBandwidthAllocated int64         `json:"max_bandwidth_allocated"`
+	}
+	// 子账号资源使用情况
+	SubUserUsage {
+		Username          string `json:"user_name"`
+		MaxBandwidth      int64  `json:"max_bandwidth"`
+		CurrentBandwidth  int64  `json:"current_bandwidth"`
+		TotalTrafficLimit int64  `json:"total_traffic_limit"`
+		TrafficUsed       int64  `json:"traffic_used"`
+	}
+	GetSubUserUsageResponse {
+		SubUsers []*SubUserUsage `json:"sub_users"`
+	}
+	AllStatsPer5MinReq {
+		Minutes int32 `form:"minutes"`
+	}
+	AllStatsPerHourReq {
+		Hours int32 `form:"hours"`
+	}
+	AllStatsPerDayReq {
+		Days int32 `form:"days"`
+	}
+	UserStats5PerMinReq {
+		Username string `form:"username"`
+		Minutes  int32  `form:"minutes"`
+	}
+	UserStatsPerHourReq {
+		Username string `form:"username"`
+		Hours    int32  `form:"hours"`
+	}
+	UserStatsPerDayReq {
+		Username string `form:"username"`
+		Days     int32  `form:"days"`
+	}
+	StatPoint {
+		Timestamp int64 `json:"timestamp"`
+		// unit KB
+		Bandwidth int64 `json:"bandwidth"`
+		Traffic   int64 `json:"traffic"`
+	}
+	StatsResp {
+		Stats []*StatPoint `json:"stats"`
+	}
 )
 
 @server (
@@ -267,5 +325,43 @@ service api {
 	@doc "拉取pops列表"
 	@handler ListPops
 	get /pops returns (ListPopsResponse)
+}
+
+@server (
+	prefix:     /api/stat
+	middleware: Header,UserAgent,Auth
+)
+service api {
+	@doc "获取统计概要"
+	@handler GetStatSummary
+	get /summary returns (GetStatSummaryResponse)
+
+	@doc "获取子账号资源使用情况"
+	@handler GetSubUserUsage
+	get /subuser-usage returns (GetSubUserUsageResponse)
+
+	@doc "获取每5分钟的总流量与带宽"
+	@handler GetAllStatsPer5Min
+	get /all-minute (AllStatsPer5MinReq) returns (StatsResp)
+
+	@doc "获取每小时的总流量与带宽"
+	@handler GetAllStatsPerHour
+	get /all-hour (AllStatsPerHourReq) returns (StatsResp)
+
+	@doc "获取每天的总流量与带宽"
+	@handler GetAllStatsPerDay
+	get /all-Day (AllStatsPerDayReq) returns (StatsResp)
+
+	@doc "获取子用户每5分钟的总流量与带宽"
+	@handler GetUserStatsPer5Min
+	get /user-minute (UserStats5PerMinReq) returns (StatsResp)
+
+    @doc "获取子用户每小时的总流量与带宽"
+	@handler GetUserStatsPerHour
+	get /user-hour (UserStatsPerHourReq) returns (StatsResp)
+
+    @doc "获取子用户每天的总流量与带宽"
+	@handler GetUserStatsPerDay
+	get /user-day (UserStatsPerDayReq) returns (StatsResp)
 }
 

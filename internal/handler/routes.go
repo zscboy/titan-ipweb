@@ -78,6 +78,57 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.Header, serverCtx.UserAgent, serverCtx.Auth},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/all-Day",
+					Handler: GetAllStatsPerDayHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/all-hour",
+					Handler: GetAllStatsPerHourHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/all-minute",
+					Handler: GetAllStatsPer5MinHandler(serverCtx),
+				},
+				{
+					// 获取子账号资源使用情况
+					Method:  http.MethodGet,
+					Path:    "/subuser-usage",
+					Handler: GetSubUserUsageHandler(serverCtx),
+				},
+				{
+					// 获取统计概要
+					Method:  http.MethodGet,
+					Path:    "/summary",
+					Handler: GetStatSummaryHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/user-day",
+					Handler: GetUserStatsPerDayHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/user-hour",
+					Handler: GetUserStatsPerHourHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/user-minute",
+					Handler: GetUserStatsPer5MinHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/stat"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.Header, serverCtx.UserAgent},
 			[]rest.Route{
 				{

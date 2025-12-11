@@ -90,6 +90,7 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 		CreateTime:        createUserResp.CreateTime,
 		Status:            createUserResp.Status,
 		UserID:            user.UUID,
+		PopID:             req.PopId,
 	}
 
 	if err := model.SaveSubUser(l.svcCtx.Redis, subUser); err != nil {

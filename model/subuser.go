@@ -25,6 +25,7 @@ type SubUser struct {
 	StartTime         int64  `redis:"start_time"`
 	EndTime           int64  `redis:"end_time"`
 	UserID            string `redis:"user_id"`
+	PopID             string `redis:"pop_id"`
 }
 
 func subUserKey(username string) string {

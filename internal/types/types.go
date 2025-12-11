@@ -3,6 +3,18 @@
 
 package types
 
+type AllStatsPer5MinReq struct {
+	Minutes int32 `form:"minutes"`
+}
+
+type AllStatsPerDayReq struct {
+	Days int32 `form:"days"`
+}
+
+type AllStatsPerHourReq struct {
+	Hours int32 `form:"hours"`
+}
+
 type BaseResponse struct {
 	Code int64       `json:"code"`
 	Msg  string      `json:"msg"`
@@ -32,6 +44,21 @@ type EditSubUserLimitReq struct {
 	Username          string `json:"username"`
 	MaxBandwidthLimit *int64 `json:"max_bandwidth_limit,optional"`
 	TotalTrafficLimit *int64 `json:"total_traffic_limit,optional"`
+}
+
+type GetStatSummaryResponse struct {
+	TotalTrafficLimit     int64         `json:"total_traffic_limit"`
+	TotalTrafficAllocated int64         `json:"total_traffic_allocated"`
+	TrafficUsed           int64         `json:"total_bandwidth_allocated"`
+	CurrentBandwidth      int64         `json:"current_bandwidth"`
+	TopBandwidth          int           `json:"top_bandwidth"`
+	SubUserCount          *SubUserCount `json:"subuser_count"`
+	MaxBandwidthLimit     int64         `json:"max_bandwidth_limit"`
+	MaxBandwidthAllocated int64         `json:"max_bandwidth_allocated"`
+}
+
+type GetSubUserUsageResponse struct {
+	SubUsers []*SubUserUsage `json:"sub_users"`
 }
 
 type GetTotalQuotaResponse struct {
@@ -142,6 +169,16 @@ type SendEmailCodeRequest struct {
 type SendEmailCodeResponse struct {
 }
 
+type StatPoint struct {
+	Timestamp int64 `json:"timestamp"`
+	Bandwidth int64 `json:"bandwidth"`
+	Traffic   int64 `json:"traffic'`
+}
+
+type StatsResp struct {
+	Stats []*StatPoint `json:"stats"`
+}
+
 type SubUser struct {
 	Username          string `json:"username"`
 	Password          string `json:"password"`
@@ -156,6 +193,20 @@ type SubUser struct {
 	Status            string `json:"status"`
 	StartTime         int64
 	EndTime           int64
+}
+
+type SubUserCount struct {
+	Active     int `json:"active"`
+	Stop       int `json:"stop"`
+	Deprecated int `json:"deprecated"`
+}
+
+type SubUserUsage struct {
+	Username          string `json:"user_name"`
+	MaxBandwidth      int64  `json:"max_bandwidth"`
+	CurrentBandwidth  int64  `json:"current_bandwidth"`
+	TotalTrafficLimit int64  `json:"total_traffic_limit"`
+	TrafficUsed       int64  `json:"traffic_used"`
 }
 
 type TrafficLimit struct {
@@ -190,4 +241,19 @@ type UserRegisterResp struct {
 	UserId       string `json:"user_id"`
 	Role         string `json:"role"`
 	ExpiresAt    int64  `json:"expires_at"`
+}
+
+type UserStats5PerMinReq struct {
+	Username string `form:"username"`
+	Minutes  int32  `form:"minutes"`
+}
+
+type UserStatsPerDayReq struct {
+	Username string `form:"username"`
+	Days     int32  `form:"days"`
+}
+
+type UserStatsPerHourReq struct {
+	Username string `form:"username"`
+	Hours    int32  `form:"hours"`
 }

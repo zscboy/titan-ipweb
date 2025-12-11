@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -63,4 +64,23 @@ func GetUser(rdb *redis.Redis, uuid string) (*User, error) {
 	}
 
 	return user, nil
+}
+
+// limit user length
+func GetUserPops(rdb *redis.Redis, uuid string) ([]string, error) {
+	subUsers, err := GetSubUsers(context.Background(), rdb, uuid, 0, -1)
+	if err != nil {
+		return nil, nil
+	}
+
+	popMap := make(map[string]struct{})
+	for _, subUser := range subUsers {
+		popMap[subUser.PopID] = struct{}{}
+	}
+
+	popIDs := make([]string, 0, len(popMap))
+	for popID, _ := range popMap {
+		popIDs = append(popIDs, popID)
+	}
+	return popIDs, nil
 }

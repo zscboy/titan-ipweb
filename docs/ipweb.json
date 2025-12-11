@@ -465,6 +465,450 @@
         }
       }
     },
+    "/api/stat/all-Day": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取每天的总流量与带宽",
+        "operationId": "getAllStatsPerDay",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "days",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "stats": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "timestamp",
+                      "bandwidth",
+                      "traffic"
+                    ],
+                    "properties": {
+                      "bandwidth": {
+                        "type": "integer"
+                      },
+                      "timestamp": {
+                        "type": "integer"
+                      },
+                      "traffic": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stat/all-hour": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取每小时的总流量与带宽",
+        "operationId": "getAllStatsPerHour",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "hours",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "stats": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "timestamp",
+                      "bandwidth",
+                      "traffic"
+                    ],
+                    "properties": {
+                      "bandwidth": {
+                        "type": "integer"
+                      },
+                      "timestamp": {
+                        "type": "integer"
+                      },
+                      "traffic": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stat/all-minute": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取每5分钟的总流量与带宽",
+        "operationId": "getAllStatsPer5Min",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "minutes",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "stats": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "timestamp",
+                      "bandwidth",
+                      "traffic"
+                    ],
+                    "properties": {
+                      "bandwidth": {
+                        "type": "integer"
+                      },
+                      "timestamp": {
+                        "type": "integer"
+                      },
+                      "traffic": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stat/subuser-usage": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取子账号资源使用情况",
+        "operationId": "getSubUserUsage",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "sub_users": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "user_name",
+                      "max_bandwidth",
+                      "current_bandwidth",
+                      "total_traffic_limit",
+                      "traffic_used"
+                    ],
+                    "properties": {
+                      "current_bandwidth": {
+                        "type": "integer"
+                      },
+                      "max_bandwidth": {
+                        "type": "integer"
+                      },
+                      "total_traffic_limit": {
+                        "type": "integer"
+                      },
+                      "traffic_used": {
+                        "type": "integer"
+                      },
+                      "user_name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stat/summary": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取统计概要",
+        "operationId": "getStatSummary",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "current_bandwidth": {
+                  "type": "integer"
+                },
+                "max_bandwidth_allocated": {
+                  "type": "integer"
+                },
+                "max_bandwidth_limit": {
+                  "type": "integer"
+                },
+                "subuser_count": {
+                  "type": "object",
+                  "required": [
+                    "active",
+                    "stop",
+                    "deprecated"
+                  ],
+                  "properties": {
+                    "active": {
+                      "type": "integer"
+                    },
+                    "deprecated": {
+                      "type": "integer"
+                    },
+                    "stop": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "top_bandwidth": {
+                  "type": "integer"
+                },
+                "total_bandwidth_allocated": {
+                  "type": "integer"
+                },
+                "total_traffic_allocated": {
+                  "type": "integer"
+                },
+                "total_traffic_limit": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stat/user-day": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取子用户每天的总流量与带宽",
+        "operationId": "getUserStatsPerDay",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "username",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "days",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "stats": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "timestamp",
+                      "bandwidth",
+                      "traffic"
+                    ],
+                    "properties": {
+                      "bandwidth": {
+                        "type": "integer"
+                      },
+                      "timestamp": {
+                        "type": "integer"
+                      },
+                      "traffic": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stat/user-hour": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取子用户每小时的总流量与带宽",
+        "operationId": "getUserStatsPerHour",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "username",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "hours",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "stats": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "timestamp",
+                      "bandwidth",
+                      "traffic"
+                    ],
+                    "properties": {
+                      "bandwidth": {
+                        "type": "integer"
+                      },
+                      "timestamp": {
+                        "type": "integer"
+                      },
+                      "traffic": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stat/user-minute": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "summary": "获取子用户每5分钟的总流量与带宽",
+        "operationId": "getUserStatsPer5Min",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "username",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "minutes",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "stats": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "timestamp",
+                      "bandwidth",
+                      "traffic"
+                    ],
+                    "properties": {
+                      "bandwidth": {
+                        "type": "integer"
+                      },
+                      "timestamp": {
+                        "type": "integer"
+                      },
+                      "traffic": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/subuser/create": {
       "post": {
         "consumes": [
@@ -1033,7 +1477,7 @@
       }
     }
   },
-  "x-date": "2025-12-09 17:10:17",
+  "x-date": "2025-12-11 12:34:58",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",

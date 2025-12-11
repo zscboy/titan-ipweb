@@ -75,7 +75,7 @@ func (l *EditSubUserLimitLogic) EditSubUserLimit(req *types.EditSubUserLimitReq)
 		return fmt.Errorf("cannot allocate more than the maximum bandwidth")
 	}
 
-	if user.TotalTrafficLimit > user.TotalTrafficAllocated {
+	if user.TotalTrafficAllocated > user.TotalTrafficLimit {
 		return fmt.Errorf("cannot allocate more than the maximum traffic")
 	}
 
