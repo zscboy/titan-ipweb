@@ -81,16 +81,19 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.Header, serverCtx.UserAgent, serverCtx.Auth},
 			[]rest.Route{
 				{
+					// 获取每天的总流量与带宽
 					Method:  http.MethodGet,
 					Path:    "/all-Day",
 					Handler: GetAllStatsPerDayHandler(serverCtx),
 				},
 				{
+					// 获取每小时的总流量与带宽
 					Method:  http.MethodGet,
 					Path:    "/all-hour",
 					Handler: GetAllStatsPerHourHandler(serverCtx),
 				},
 				{
+					// 获取每5分钟的总流量与带宽
 					Method:  http.MethodGet,
 					Path:    "/all-minute",
 					Handler: GetAllStatsPer5MinHandler(serverCtx),
@@ -108,16 +111,19 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: GetStatSummaryHandler(serverCtx),
 				},
 				{
+					// 获取子用户每天的总流量与带宽
 					Method:  http.MethodGet,
 					Path:    "/user-day",
 					Handler: GetUserStatsPerDayHandler(serverCtx),
 				},
 				{
+					// 获取子用户每小时的总流量与带宽
 					Method:  http.MethodGet,
 					Path:    "/user-hour",
 					Handler: GetUserStatsPerHourHandler(serverCtx),
 				},
 				{
+					// 获取子用户每5分钟的总流量与带宽
 					Method:  http.MethodGet,
 					Path:    "/user-minute",
 					Handler: GetUserStatsPer5MinHandler(serverCtx),

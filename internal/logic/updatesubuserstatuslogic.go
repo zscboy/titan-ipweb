@@ -17,12 +17,6 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-const (
-	subUserStatusActive     = "active"
-	subUserStatusStop       = "stop"
-	subUserStatusDeprecated = "deprecated"
-)
-
 type UpdateSubUserStatusLogic struct {
 	logx.Logger
 	ctx    context.Context

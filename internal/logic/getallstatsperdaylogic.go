@@ -42,12 +42,12 @@ func (l *GetAllStatsPerDayLogic) GetAllStatsPerDay(req *types.AllStatsPerDayReq)
 		return nil, fmt.Errorf("auth failed")
 	}
 
-	popIDs, err := model.GetUserPops(l.svcCtx.Redis, autCtxValue.UserId)
+	usernames, err := model.GetAllSubUsername(l.svcCtx.Redis, autCtxValue.UserId)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(popIDs) == 0 {
+	if len(usernames) == 0 {
 		return l.emptyReply(req)
 	}
 
@@ -58,26 +58,26 @@ func (l *GetAllStatsPerDayLogic) GetAllStatsPerDay(req *types.AllStatsPerDayReq)
 		firstError error
 	)
 
-	wg.Add(len(popIDs))
-	for _, popID := range popIDs {
-		id := popID // 避免 goroutine 捕获错误变量
+	wg.Add(len(usernames))
+	for _, username := range usernames {
+		uname := username // 避免 goroutine 捕获错误变量
 		go func() {
 			defer wg.Done()
 
-			statsResp, err := l.getAllStatsPerDay(id, req.Days)
+			statsResp, err := l.getUserStatsPerDay(uname, req.Days)
 			if err != nil {
 				// logx.Error("getAllStatsPer5Min failed:%v", err.Error())
 				// 只记录第一个错误
 				mu.Lock()
 				if firstError == nil {
-					firstError = fmt.Errorf("popID %s: %w", popID, err)
+					firstError = fmt.Errorf("get user %s stats per day: %w", uname, err)
 				}
 				mu.Unlock()
 				return
 			}
 
 			mu.Lock()
-			statsMap[popID] = statsResp
+			statsMap[uname] = statsResp
 			mu.Unlock()
 		}()
 	}
@@ -111,8 +111,8 @@ func (l *GetAllStatsPerDayLogic) GetAllStatsPerDay(req *types.AllStatsPerDayReq)
 	return &types.StatsResp{Stats: stats}, nil
 }
 
-func (l *GetAllStatsPerDayLogic) getAllStatsPerDay(popID string, days int32) (resp *types.StatsResp, err error) {
-	url := fmt.Sprintf("%s/user/stats/alloneday?popid=%s&days=%d", l.svcCtx.Config.IPPMServer, popID, days)
+func (l *GetAllStatsPerDayLogic) getUserStatsPerDay(username string, days int32) (resp *types.StatsResp, err error) {
+	url := fmt.Sprintf("%s/user/stats/perday?username=%s&days=%d", l.svcCtx.Config.IPPMServer, username, days)
 
 	client := &http.Client{}
 	httpReq, err := http.NewRequest("GET", url, nil)
