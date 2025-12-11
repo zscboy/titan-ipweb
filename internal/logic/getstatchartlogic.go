@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"sync"
-	"time"
 
 	"titan-ipweb/internal/middleware"
 	"titan-ipweb/internal/svc"
@@ -18,28 +17,51 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type GetAllStatsPer5MinLogic struct {
+const (
+	chartTypeMinute = "minute"
+	charTypeHour    = "hour"
+	chartTypeDay    = "day"
+)
+
+type GetStatChartLogic struct {
 	logx.Logger
 	ctx         context.Context
 	svcCtx      *svc.ServiceContext
 	fiveMinutes int32
+	oneHour     int32
+	oneDay      int32
 }
 
-func NewGetAllStatsPer5MinLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetAllStatsPer5MinLogic {
-	return &GetAllStatsPer5MinLogic{
+// 获取趋势图
+func NewGetStatChartLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetStatChartLogic {
+	return &GetStatChartLogic{
 		Logger:      logx.WithContext(ctx),
 		ctx:         ctx,
 		svcCtx:      svcCtx,
 		fiveMinutes: 5 * 60,
+		oneHour:     1 * 60 * 60,
+		oneDay:      24 * 60 * 60,
 	}
 }
 
-func (l *GetAllStatsPer5MinLogic) GetAllStatsPer5Min(req *types.AllStatsPer5MinReq) (resp *types.StatsResp, err error) {
+func (l *GetStatChartLogic) GetStatChart(req *types.StatChartReq) (resp *types.StatChartResponse, err error) {
 	logx.Debugf("GetAllStatsPer5Min %#v", req)
 	v := l.ctx.Value(middleware.AuthKey)
 	autCtxValue, ok := v.(middleware.AuthCtxValue)
 	if !ok {
 		return nil, fmt.Errorf("auth failed")
+	}
+
+	if req.Username != "" {
+		subUser, err := model.GetSubUser(l.svcCtx.Redis, req.Username)
+		if err != nil {
+			return nil, err
+		}
+
+		if subUser.UserID != autCtxValue.UserId {
+			return nil, fmt.Errorf("username %s not exist", req.Username)
+		}
+		return l.getStatChartForSingleUser(req, req.Username)
 	}
 
 	usernames, err := model.GetAllSubUsername(l.svcCtx.Redis, autCtxValue.UserId)
@@ -54,8 +76,9 @@ func (l *GetAllStatsPer5MinLogic) GetAllStatsPer5Min(req *types.AllStatsPer5MinR
 	var (
 		wg         sync.WaitGroup
 		mu         sync.Mutex
-		statsMap   map[string]*types.StatsResp
+		statsMap   map[string]*types.StatChartResponse
 		firstError error
+		count      int
 	)
 
 	wg.Add(len(usernames))
@@ -64,7 +87,7 @@ func (l *GetAllStatsPer5MinLogic) GetAllStatsPer5Min(req *types.AllStatsPer5MinR
 		go func() {
 			defer wg.Done()
 
-			statsResp, err := l.getUserStatsPer5Min(uname, req.Minutes)
+			statsResp, err := l.getStatChartForSingleUser(req, username)
 			if err != nil {
 				// logx.Error("getAllStatsPer5Min failed:%v", err.Error())
 				// 只记录第一个错误
@@ -78,6 +101,7 @@ func (l *GetAllStatsPer5MinLogic) GetAllStatsPer5Min(req *types.AllStatsPer5MinR
 
 			mu.Lock()
 			statsMap[uname] = statsResp
+			count = len(statsResp.Stats)
 			mu.Unlock()
 		}()
 	}
@@ -89,7 +113,6 @@ func (l *GetAllStatsPer5MinLogic) GetAllStatsPer5Min(req *types.AllStatsPer5MinR
 		return nil, firstError
 	}
 
-	count := req.Minutes * 60 / l.fiveMinutes
 	stats := make([]*types.StatPoint, 0, count)
 	for i := 0; i < int(count); i++ {
 		stat := &types.StatPoint{}
@@ -108,11 +131,12 @@ func (l *GetAllStatsPer5MinLogic) GetAllStatsPer5Min(req *types.AllStatsPer5MinR
 
 	}
 
-	return &types.StatsResp{Stats: stats}, nil
+	return &types.StatChartResponse{Stats: stats}, nil
+
 }
 
-func (l *GetAllStatsPer5MinLogic) getUserStatsPer5Min(username string, minutes int32) (resp *types.StatsResp, err error) {
-	url := fmt.Sprintf("%s/user/stats/per5min?username=%s&minutes=%d", l.svcCtx.Config.IPPMServer, username, minutes)
+func (l *GetStatChartLogic) getStatChartForSingleUser(req *types.StatChartReq, username string) (resp *types.StatChartResponse, err error) {
+	url := fmt.Sprintf("%s/user/stats/chart?type=%s&username=%s&start_time=%d&end_time=%d", l.svcCtx.Config.IPPMServer, req.Type, username, req.StartTime, req.EndTime)
 
 	client := &http.Client{}
 	httpReq, err := http.NewRequest("GET", url, nil)
@@ -154,19 +178,60 @@ func (l *GetAllStatsPer5MinLogic) getUserStatsPer5Min(username string, minutes i
 		stats = append(stats, stat)
 	}
 
-	return &types.StatsResp{Stats: stats}, nil
+	return &types.StatChartResponse{Stats: stats}, nil
 }
 
-func (l *GetAllStatsPer5MinLogic) emptyReply(req *types.AllStatsPer5MinReq) (resp *types.StatsResp, err error) {
-	start := time.Now().Add(-time.Minute*time.Duration(req.Minutes)).Unix() / int64(l.fiveMinutes)
-	end := time.Now().Unix() / int64(l.fiveMinutes)
+func (l *GetStatChartLogic) emptyReply(req *types.StatChartReq) (resp *types.StatChartResponse, err error) {
+	switch req.Type {
+	case chartTypeMinute:
+		return l.replyEmtpyForMinute(req)
+	case charTypeHour:
+		return l.replyEmtpyForHour(req)
+	case chartTypeDay:
+		return l.replyEmtpyForDay(req)
+	}
 
-	count := req.Minutes * 60 / int32(l.fiveMinutes)
+	return nil, fmt.Errorf("invalid type %s", req.Type)
+}
+
+func (l *GetStatChartLogic) replyEmtpyForMinute(req *types.StatChartReq) (resp *types.StatChartResponse, err error) {
+	start := req.StartTime / int64(l.fiveMinutes)
+	end := req.EndTime / int64(l.fiveMinutes)
+
+	count := int32(req.EndTime-req.StartTime) / int32(l.fiveMinutes)
 	stats := make([]*types.StatPoint, 0, count)
 	for i := start; i <= end; i++ {
 		ts := i * int64(l.fiveMinutes)
 		stat := &types.StatPoint{Timestamp: ts}
 		stats = append(stats, stat)
 	}
-	return &types.StatsResp{Stats: stats}, nil
+	return &types.StatChartResponse{Stats: stats}, nil
+}
+
+func (l *GetStatChartLogic) replyEmtpyForHour(req *types.StatChartReq) (resp *types.StatChartResponse, err error) {
+	start := req.StartTime / int64(l.oneHour)
+	end := req.EndTime / int64(l.oneHour)
+
+	count := int32(req.EndTime-req.StartTime) / int32(l.oneHour)
+	stats := make([]*types.StatPoint, 0, count)
+	for i := start; i <= end; i++ {
+		ts := i * int64(l.oneHour)
+		stat := &types.StatPoint{Timestamp: ts}
+		stats = append(stats, stat)
+	}
+	return &types.StatChartResponse{Stats: stats}, nil
+}
+
+func (l *GetStatChartLogic) replyEmtpyForDay(req *types.StatChartReq) (resp *types.StatChartResponse, err error) {
+	start := req.StartTime / int64(l.oneDay)
+	end := req.EndTime / int64(l.oneDay)
+
+	count := int32(req.EndTime-req.StartTime) / int32(l.oneDay)
+	stats := make([]*types.StatPoint, 0, count)
+	for i := start; i <= end; i++ {
+		ts := i * int64(l.oneDay)
+		stat := &types.StatPoint{Timestamp: ts}
+		stats = append(stats, stat)
+	}
+	return &types.StatChartResponse{Stats: stats}, nil
 }

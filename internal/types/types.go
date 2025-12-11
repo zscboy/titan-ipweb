@@ -46,19 +46,12 @@ type EditSubUserLimitReq struct {
 	TotalTrafficLimit *int64 `json:"total_traffic_limit,optional"`
 }
 
-type GetStatSummaryResponse struct {
-	TotalTrafficLimit     int64         `json:"total_traffic_limit"`     // 总流量配额
-	TotalTrafficAllocated int64         `json:"total_traffic_allocated"` // 已分配流量
-	SubUserCount          *SubUserCount `json:"subuser_count"`           // 子账号数量
-	MaxBandwidthLimit     int64         `json:"max_bandwidth_limit"`     // 带宽配额上限
-	MaxBandwidthAllocated int64         `json:"max_bandwidth_allocated"` // 已分配带宽
-}
-
 type GetSubUserUsageResponse struct {
 	SubUsers              []*SubUserUsage `json:"sub_users"`
 	TotalTrafficUsed      int64           `json:"total_traffic_used"`      // 已用流量
 	TotalCurrentBandwidth int64           `json:"total_current_bandwidth"` // 实时带宽
 	TotalTopBandwidth     int             `json:"total_top_bandwidth"`     // 峰值带宽
+	Count                 *SubUserCount   `json:"count"`                   // 子账号数量，停止，获取，废弃的统计
 }
 
 type GetTotalQuotaResponse struct {
@@ -167,6 +160,17 @@ type SendEmailCodeRequest struct {
 }
 
 type SendEmailCodeResponse struct {
+}
+
+type StatChartReq struct {
+	Type      string `json:"type"` // Type 统计类型: minute, hour, day
+	StartTime int64  `json:"start_time"`
+	EndTime   int64  `json:"end_time"`
+	Username  string `json:"username,optional"`
+}
+
+type StatChartResponse struct {
+	Stats []*StatPoint `json:"stats"`
 }
 
 type StatPoint struct {

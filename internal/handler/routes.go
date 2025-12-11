@@ -81,52 +81,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.Header, serverCtx.UserAgent, serverCtx.Auth},
 			[]rest.Route{
 				{
-					// 获取每天的总流量与带宽
+					// 获取趋势图
 					Method:  http.MethodGet,
-					Path:    "/all-Day",
-					Handler: GetAllStatsPerDayHandler(serverCtx),
-				},
-				{
-					// 获取每小时的总流量与带宽
-					Method:  http.MethodGet,
-					Path:    "/all-hour",
-					Handler: GetAllStatsPerHourHandler(serverCtx),
-				},
-				{
-					// 获取每5分钟的总流量与带宽
-					Method:  http.MethodGet,
-					Path:    "/all-minute",
-					Handler: GetAllStatsPer5MinHandler(serverCtx),
+					Path:    "/chart",
+					Handler: GetStatChartHandler(serverCtx),
 				},
 				{
 					// 获取子账号资源使用情况
 					Method:  http.MethodGet,
 					Path:    "/subuser-usage",
 					Handler: GetSubUserUsageHandler(serverCtx),
-				},
-				{
-					// 获取统计概要
-					Method:  http.MethodGet,
-					Path:    "/summary",
-					Handler: GetStatSummaryHandler(serverCtx),
-				},
-				{
-					// 获取子用户每天的总流量与带宽
-					Method:  http.MethodGet,
-					Path:    "/user-day",
-					Handler: GetUserStatsPerDayHandler(serverCtx),
-				},
-				{
-					// 获取子用户每小时的总流量与带宽
-					Method:  http.MethodGet,
-					Path:    "/user-hour",
-					Handler: GetUserStatsPerHourHandler(serverCtx),
-				},
-				{
-					// 获取子用户每5分钟的总流量与带宽
-					Method:  http.MethodGet,
-					Path:    "/user-minute",
-					Handler: GetUserStatsPer5MinHandler(serverCtx),
 				},
 			}...,
 		),

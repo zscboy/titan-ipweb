@@ -192,14 +192,6 @@ type (
 		Stop       int `json:"stop"`
 		Deprecated int `json:"deprecated"`
 	}
-	// 统计概要
-	GetStatSummaryResponse {
-		TotalTrafficLimit     int64         `json:"total_traffic_limit"` // 总流量配额
-		TotalTrafficAllocated int64         `json:"total_traffic_allocated"` // 已分配流量
-		SubUserCount          *SubUserCount `json:"subuser_count"` // 子账号数量
-		MaxBandwidthLimit     int64         `json:"max_bandwidth_limit"` // 带宽配额上限
-		MaxBandwidthAllocated int64         `json:"max_bandwidth_allocated"` // 已分配带宽
-	}
 	// 子账号资源使用情况
 	SubUserUsage {
 		Username          string `json:"user_name"` // 子帐号名称
@@ -214,6 +206,7 @@ type (
 		TotalTrafficUsed      int64           `json:"total_traffic_used"` // 已用流量
 		TotalCurrentBandwidth int64           `json:"total_current_bandwidth"` // 实时带宽
 		TotalTopBandwidth     int             `json:"total_top_bandwidth"` // 峰值带宽
+		Count                 *SubUserCount   `json:"count"` // 子账号数量，停止，获取，废弃的统计
 	}
 	AllStatsPer5MinReq {
 		Minutes int32 `form:"minutes"`
@@ -243,6 +236,15 @@ type (
 		Traffic   int64 `json:"traffic"`
 	}
 	StatsResp {
+		Stats []*StatPoint `json:"stats"`
+	}
+	StatChartReq {
+		Type      string `json:"type"` // Type 统计类型: minute, hour, day
+		StartTime int64  `json:"start_time"` // 起始时间 minute间隔要大于5分钟，hour间隔要大于1小时，day间隔要大于24小时
+		EndTime   int64  `json:"end_time"`   // 结束时间
+		Username  string `json:"username,optional"`
+	}
+	StatChartResponse {
 		Stats []*StatPoint `json:"stats"`
 	}
 )
@@ -333,36 +335,12 @@ service api {
 	middleware: Header,UserAgent,Auth
 )
 service api {
-	@doc "获取统计概要"
-	@handler GetStatSummary
-	get /summary returns (GetStatSummaryResponse)
-
 	@doc "获取子账号资源使用情况"
 	@handler GetSubUserUsage
 	get /subuser-usage returns (GetSubUserUsageResponse)
 
-	@doc "获取每5分钟的总流量与带宽"
-	@handler GetAllStatsPer5Min
-	get /all-minute (AllStatsPer5MinReq) returns (StatsResp)
-
-	@doc "获取每小时的总流量与带宽"
-	@handler GetAllStatsPerHour
-	get /all-hour (AllStatsPerHourReq) returns (StatsResp)
-
-	@doc "获取每天的总流量与带宽"
-	@handler GetAllStatsPerDay
-	get /all-Day (AllStatsPerDayReq) returns (StatsResp)
-
-	@doc "获取子用户每5分钟的总流量与带宽"
-	@handler GetUserStatsPer5Min
-	get /user-minute (UserStats5PerMinReq) returns (StatsResp)
-
-	@doc "获取子用户每小时的总流量与带宽"
-	@handler GetUserStatsPerHour
-	get /user-hour (UserStatsPerHourReq) returns (StatsResp)
-
-	@doc "获取子用户每天的总流量与带宽"
-	@handler GetUserStatsPerDay
-	get /user-day (UserStatsPerDayReq) returns (StatsResp)
+	@doc "获取趋势图"
+	@handler GetStatChart
+	get /chart (StatChartReq) returns (StatChartResponse)
 }
 
