@@ -646,22 +646,32 @@
                       "max_bandwidth",
                       "current_bandwidth",
                       "total_traffic_limit",
-                      "traffic_used"
+                      "traffic_used",
+                      "status"
                     ],
                     "properties": {
                       "current_bandwidth": {
+                        "description": "当前带宽",
                         "type": "integer"
                       },
                       "max_bandwidth": {
+                        "description": "带宽上限",
                         "type": "integer"
                       },
+                      "status": {
+                        "description": "用户状态，停止或者活跃",
+                        "type": "string"
+                      },
                       "total_traffic_limit": {
+                        "description": "流量上限",
                         "type": "integer"
                       },
                       "traffic_used": {
+                        "description": "已使用流量",
                         "type": "integer"
                       },
                       "user_name": {
+                        "description": "子帐号名称",
                         "type": "string"
                       }
                     }
@@ -690,15 +700,19 @@
               "type": "object",
               "properties": {
                 "current_bandwidth": {
+                  "description": "实时带宽",
                   "type": "integer"
                 },
                 "max_bandwidth_allocated": {
+                  "description": "已分配带宽",
                   "type": "integer"
                 },
                 "max_bandwidth_limit": {
+                  "description": "带宽配额上限",
                   "type": "integer"
                 },
                 "subuser_count": {
+                  "description": "子账号数量",
                   "type": "object",
                   "required": [
                     "active",
@@ -718,15 +732,19 @@
                   }
                 },
                 "top_bandwidth": {
+                  "description": "峰值带宽",
                   "type": "integer"
                 },
                 "total_bandwidth_allocated": {
+                  "description": "已用流量",
                   "type": "integer"
                 },
                 "total_traffic_allocated": {
+                  "description": "流量配额分配",
                   "type": "integer"
                 },
                 "total_traffic_limit": {
+                  "description": "总流量配额",
                   "type": "integer"
                 }
               }
@@ -1477,7 +1495,7 @@
       }
     }
   },
-  "x-date": "2025-12-11 12:34:58",
+  "x-date": "2025-12-11 14:31:09",
   "x-description": "This is a goctl generated swagger file.",
   "x-github": "https://github.com/zeromicro/go-zero",
   "x-go-zero-doc": "https://go-zero.dev/",
