@@ -12,7 +12,7 @@ type Config struct {
 	TokenAuth TokenAuth
 	Redis     redis.RedisConf
 	// IP pop manager server
-	IPPMServer string
+	IPPMServer IPPMServer
 	Quota      Quota
 }
 
@@ -24,4 +24,9 @@ type TokenAuth struct {
 type Quota struct {
 	MaxBandwidthLimit int64
 	TotalTrafficLimit int64
+}
+
+type IPPMServer struct {
+	URL          string
+	AccessSecret string
 }

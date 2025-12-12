@@ -5,10 +5,12 @@ UserRpc:
   Target: localhost:8080
   Timeout: 30000
 TokenAuth: 
-  AccessSecret: c96ce150-d1ab-11f0-adbd-e30c81911f62
+  AccessSecret: 921e045a-d70e-11f0-8db9-00163e023040
 Redis:
   Host: 127.0.0.1:6379
-IPPMServer: http://59.37.137.170:41004
+IPPMServer:
+  URL:  http:/127.0.0.1:41004
+  AccessSecret: 882d7430-d70e-11f0-89bc-00163e023040
 Quota:
   MaxBandwidthLimit: 131072000
   TotalTrafficLimit: 21990232555520
@@ -16,8 +18,3 @@ Log:
   #Mode: file
   stat: false
   level: debug 
-# UserRpc   zrpc.RpcClientConf
-# TokenAuth TokenAuth
-# Redis     redis.RedisConf
-# // IP pop manager server
-# IPPMServer string

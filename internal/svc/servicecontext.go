@@ -12,9 +12,15 @@ import (
 	"titan-ipweb/ippmclient"
 	"titan-ipweb/user"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
+)
+
+const (
+	tokenExpire = 100 * 24 * 60 * 60
+	userIPweb   = "ipweb"
 )
 
 type ServiceContext struct {
@@ -29,12 +35,12 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	authToken, err := getIPPMAccessToken(c.IPPMServer)
+	authToken, err := generateJwtToken(c.IPPMServer.AccessSecret, tokenExpire, userIPweb)
 	if err != nil {
 		panic("get ippm access token error" + err.Error())
 	}
-
-	pops, err := getPops(c.IPPMServer, authToken.Token)
+	// logx.Debugf("authToken:%s", string(authToken))
+	pops, err := getPops(c.IPPMServer.URL, string(authToken))
 	if err != nil {
 		panic("get pops error" + err.Error())
 	}
@@ -46,42 +52,58 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		UserRpc:        user.NewUserServiceClient(zrpc.MustNewClient(c.UserRpc).Conn()),
 		Auth:           middleware.NewAuthMiddleware(c.TokenAuth.AccessSecret).Handle,
 		Redis:          redis.MustNewRedis(c.Redis),
-		IPPMAcessToken: authToken.Token,
+		IPPMAcessToken: string(authToken),
 		Pops:           pops,
 	}
 }
 
-func getIPPMAccessToken(ippmServer string) (*ippmclient.GetAuthTokenResp, error) {
-	url := fmt.Sprintf("%s/auth/token", ippmServer)
-
-	client := &http.Client{
-		Timeout: 5 * time.Second,
+func generateJwtToken(secret string, expire int64, user string) ([]byte, error) {
+	claims := jwt.MapClaims{
+		"user": user,
+		"exp":  time.Now().Add(time.Second * time.Duration(expire)).Unix(),
+		"iat":  time.Now().Unix(),
 	}
 
-	resp, err := client.Get(url)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		data, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("http status code %d, error msg %s", resp.StatusCode, string(data))
-	}
-
-	data, err := io.ReadAll(resp.Body)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenStr, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return nil, err
 	}
 
-	authToken := ippmclient.GetAuthTokenResp{}
-	err = json.Unmarshal(data, &authToken)
-	if err != nil {
-		return nil, err
-	}
-
-	return &authToken, nil
+	return []byte(tokenStr), nil
 }
+
+// func getIPPMAccessToken(ippmServer string) (*ippmclient.GetAuthTokenResp, error) {
+// 	url := fmt.Sprintf("%s/auth/token", ippmServer)
+
+// 	client := &http.Client{
+// 		Timeout: 5 * time.Second,
+// 	}
+
+// 	resp, err := client.Get(url)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	defer resp.Body.Close()
+
+// 	if resp.StatusCode != http.StatusOK {
+// 		data, _ := io.ReadAll(resp.Body)
+// 		return nil, fmt.Errorf("http status code %d, error msg %s", resp.StatusCode, string(data))
+// 	}
+
+// 	data, err := io.ReadAll(resp.Body)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	authToken := ippmclient.GetAuthTokenResp{}
+// 	err = json.Unmarshal(data, &authToken)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return &authToken, nil
+// }
 
 func getPops(ippmServer, accessToken string) ([]*types.Pop, error) {
 	url := fmt.Sprintf("%s/pops", ippmServer)
