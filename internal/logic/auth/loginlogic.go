@@ -73,6 +73,9 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 
 	accessSecret := l.svcCtx.Config.TokenAuth.AccessSecret
 	token, err := generateToken(accessSecret, res.UserUuid, req.UserId, td)
+	if err != nil {
+		return nil, err
+	}
 
 	expiresAt := time.Now().Add(td).Unix()
 

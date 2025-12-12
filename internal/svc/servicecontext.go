@@ -46,6 +46,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic("get pops error" + err.Error())
 	}
 
+	for _, pop := range pops {
+		logx.Debugf("pop:%#v", pop)
+	}
 	return &ServiceContext{
 		Config:         c,
 		Header:         middleware.NewHeaderMiddleware().Handle,
