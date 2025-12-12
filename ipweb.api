@@ -208,41 +208,17 @@ type (
 		TotalTopBandwidth     int             `json:"total_top_bandwidth"` // 峰值带宽
 		Count                 *SubUserCount   `json:"count"` // 子账号数量，停止，获取，废弃的统计
 	}
-	AllStatsPer5MinReq {
-		Minutes int32 `form:"minutes"`
-	}
-	AllStatsPerHourReq {
-		Hours int32 `form:"hours"`
-	}
-	AllStatsPerDayReq {
-		Days int32 `form:"days"`
-	}
-	UserStats5PerMinReq {
-		Username string `form:"username"`
-		Minutes  int32  `form:"minutes"`
-	}
-	UserStatsPerHourReq {
-		Username string `form:"username"`
-		Hours    int32  `form:"hours"`
-	}
-	UserStatsPerDayReq {
-		Username string `form:"username"`
-		Days     int32  `form:"days"`
-	}
 	StatPoint {
 		Timestamp int64 `json:"timestamp"`
 		// unit KB
 		Bandwidth int64 `json:"bandwidth"`
 		Traffic   int64 `json:"traffic"`
 	}
-	StatsResp {
-		Stats []*StatPoint `json:"stats"`
-	}
 	StatChartReq {
-		Type      string `json:"type"` // Type 统计类型: minute, hour, day
-		StartTime int64  `json:"start_time"` // 起始时间 minute间隔要大于5分钟，hour间隔要大于1小时，day间隔要大于24小时
-		EndTime   int64  `json:"end_time"`   // 结束时间
-		Username  string `json:"username,optional"`
+		Type      string `form:"type"` // Type 统计类型: minute, hour, day
+		StartTime int64  `form:"start_time"` // 起始时间 minute间隔要大于5分钟，hour间隔要大于1小时，day间隔要大于24小时
+		EndTime   int64  `form:"end_time"` // 结束时间
+		Username  string `form:"username,optional"`
 	}
 	StatChartResponse {
 		Stats []*StatPoint `json:"stats"`

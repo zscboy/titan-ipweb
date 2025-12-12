@@ -184,6 +184,17 @@ type User struct {
 	LastRouteSwitchTime int64         `json:"last_route_switch_time"`
 }
 
+type UserBaseStatsReq struct {
+	Username string `form:"username"`
+}
+
+type UserBaseStatsResp struct {
+	CurrentBandwidth int64 `json:"current_bandwidth"`
+	TopBandwidth     int64 `json:"top_bandwidth"`
+	TotalTraffic     int64 `json:"total_traffic"`
+	CurrentConns     int   `json:"current_conns"`
+}
+
 type UserOperationResp struct {
 	Success bool   `json:"success"`
 	ErrMsg  string `json:"err_msg"`
@@ -192,6 +203,17 @@ type UserOperationResp struct {
 type UserStats5PerMinReq struct {
 	Username string `form:"username"`
 	Minutes  int32  `form:"minutes"`
+}
+
+type UserStatsChartReq struct {
+	Type      string `form:"type"` // 类型为:minute, hour, day
+	Username  string `form:"username"`
+	StartTime int64  `form:"start_time"`
+	EndTime   int64  `form:"end_time"`
+}
+
+type UserStatsChartResp struct {
+	Stats []*StatPoint `json:"stats"`
 }
 
 type UserStatsPerDayReq struct {

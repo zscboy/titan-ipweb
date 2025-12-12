@@ -36,7 +36,8 @@ func (l *TestLogic) Test() (resp string, err error) {
 	}
 
 	if user == nil {
-		if err := model.SaveUser(l.svcCtx.Redis, &model.User{UUID: uuid, Email: email}); err != nil {
+		u := &model.User{UUID: uuid, Email: email, MaxBandwidthLimit: l.svcCtx.Config.Quota.MaxBandwidthLimit, TotalTrafficLimit: l.svcCtx.Config.Quota.TotalTrafficLimit}
+		if err := model.SaveUser(l.svcCtx.Redis, u); err != nil {
 			return "", err
 		}
 	}

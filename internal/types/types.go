@@ -3,18 +3,6 @@
 
 package types
 
-type AllStatsPer5MinReq struct {
-	Minutes int32 `form:"minutes"`
-}
-
-type AllStatsPerDayReq struct {
-	Days int32 `form:"days"`
-}
-
-type AllStatsPerHourReq struct {
-	Hours int32 `form:"hours"`
-}
-
 type BaseResponse struct {
 	Code int64       `json:"code"`
 	Msg  string      `json:"msg"`
@@ -163,10 +151,10 @@ type SendEmailCodeResponse struct {
 }
 
 type StatChartReq struct {
-	Type      string `json:"type"` // Type 统计类型: minute, hour, day
-	StartTime int64  `json:"start_time"`
-	EndTime   int64  `json:"end_time"`
-	Username  string `json:"username,optional"`
+	Type      string `form:"type"`       // Type 统计类型: minute, hour, day
+	StartTime int64  `form:"start_time"` // 起始时间 minute间隔要大于5分钟，hour间隔要大于1小时，day间隔要大于24小时
+	EndTime   int64  `form:"end_time"`   // 结束时间
+	Username  string `form:"username,optional"`
 }
 
 type StatChartResponse struct {
@@ -177,10 +165,6 @@ type StatPoint struct {
 	Timestamp int64 `json:"timestamp"`
 	Bandwidth int64 `json:"bandwidth"`
 	Traffic   int64 `json:"traffic"`
-}
-
-type StatsResp struct {
-	Stats []*StatPoint `json:"stats"`
 }
 
 type SubUser struct {
@@ -246,19 +230,4 @@ type UserRegisterResp struct {
 	UserId       string `json:"user_id"`
 	Role         string `json:"role"`
 	ExpiresAt    int64  `json:"expires_at"`
-}
-
-type UserStats5PerMinReq struct {
-	Username string `form:"username"`
-	Minutes  int32  `form:"minutes"`
-}
-
-type UserStatsPerDayReq struct {
-	Username string `form:"username"`
-	Days     int32  `form:"days"`
-}
-
-type UserStatsPerHourReq struct {
-	Username string `form:"username"`
-	Hours    int32  `form:"hours"`
 }

@@ -58,8 +58,12 @@ func (l *GetStatChartLogic) GetStatChart(req *types.StatChartReq) (resp *types.S
 			return nil, err
 		}
 
-		if subUser.UserID != autCtxValue.UserId {
+		if subUser == nil {
 			return nil, fmt.Errorf("username %s not exist", req.Username)
+		}
+
+		if subUser.UserID != autCtxValue.UserId {
+			return nil, fmt.Errorf("subuser username %s not exist for user %s", req.Username, autCtxValue.Email)
 		}
 		return l.getStatChartForSingleUser(req, req.Username)
 	}
@@ -76,10 +80,11 @@ func (l *GetStatChartLogic) GetStatChart(req *types.StatChartReq) (resp *types.S
 	var (
 		wg         sync.WaitGroup
 		mu         sync.Mutex
-		statsMap   map[string]*types.StatChartResponse
 		firstError error
 		count      int
 	)
+
+	statsMap := make(map[string]*types.StatChartResponse)
 
 	wg.Add(len(usernames))
 	for _, username := range usernames {
