@@ -13,6 +13,7 @@ import (
 	"titan-ipweb/user"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -39,7 +40,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if err != nil {
 		panic("get ippm access token error" + err.Error())
 	}
-	// logx.Debugf("authToken:%s", string(authToken))
+	logx.Debugf("authToken:%s", string(authToken))
 	pops, err := getPops(c.IPPMServer.URL, string(authToken))
 	if err != nil {
 		panic("get pops error" + err.Error())
@@ -61,7 +62,7 @@ func generateJwtToken(secret string, expire int64, user string) ([]byte, error) 
 	claims := jwt.MapClaims{
 		"user": user,
 		"exp":  time.Now().Add(time.Second * time.Duration(expire)).Unix(),
-		"iat":  time.Now().Unix(),
+		"iat":  time.Now().Add(-5 * time.Second).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
