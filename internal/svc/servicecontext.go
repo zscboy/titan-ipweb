@@ -32,7 +32,7 @@ type ServiceContext struct {
 	Auth           rest.Middleware
 	Redis          *redis.Redis
 	IPPMAcessToken string
-	Pops           []*types.Pop
+	Pops           map[string]*types.Pop
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -109,7 +109,7 @@ func generateJwtToken(secret string, expire int64, user string) ([]byte, error) 
 // 	return &authToken, nil
 // }
 
-func getPops(ippmServer, accessToken string) ([]*types.Pop, error) {
+func getPops(ippmServer, accessToken string) (map[string]*types.Pop, error) {
 	url := fmt.Sprintf("%s/pops", ippmServer)
 
 	client := &http.Client{}
@@ -143,10 +143,11 @@ func getPops(ippmServer, accessToken string) ([]*types.Pop, error) {
 		return nil, err
 	}
 
-	pops := make([]*types.Pop, 0, len(popsResp.Pops))
+	// pops := make([]*types.Pop, 0, len(popsResp.Pops))
+	pops := make(map[string]*types.Pop)
 	for _, p := range popsResp.Pops {
-		pop := &types.Pop{ID: p.ID, Area: p.Area, Socks5Server: p.Socks5Addr}
-		pops = append(pops, pop)
+		pop := &types.Pop{ID: p.ID, Name: p.Name, Area: p.Area, Socks5Server: p.Socks5Addr}
+		pops[pop.ID] = pop
 	}
 	return pops, nil
 }

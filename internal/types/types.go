@@ -181,6 +181,7 @@ type SubUser struct {
 	Status            string `json:"status"`
 	StartTime         int64
 	EndTime           int64
+	AreaName          string `json:"area_name"`
 }
 
 type SubUserCount struct {

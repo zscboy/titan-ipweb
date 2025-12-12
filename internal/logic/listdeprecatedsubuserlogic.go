@@ -58,6 +58,12 @@ func (l *ListDeprecatedSubUserLogic) ListDeprecatedSubUser(req *types.ListDeprec
 			DeprecatedTime:    subUser.DeprecatedTime,
 			Status:            subUser.Status,
 		}
+
+		pop, ok := l.svcCtx.Pops[subUser.PopID]
+		if ok {
+			user.AreaName = pop.Name
+		}
+
 		users = append(users, user)
 	}
 

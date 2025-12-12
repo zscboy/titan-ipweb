@@ -179,11 +179,9 @@ func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *t
 }
 
 func (l *CreateSubUserLogic) getSocks5Addrss(popID string) string {
-	pops := l.svcCtx.Pops
-	for _, pop := range pops {
-		if pop.ID == popID {
-			return pop.Socks5Server
-		}
+	pop, ok := l.svcCtx.Pops[popID]
+	if ok {
+		return pop.Socks5Server
 	}
 	return ""
 }

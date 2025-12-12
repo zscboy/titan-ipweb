@@ -63,6 +63,12 @@ func (l *ListSubUserLogic) ListSubUser(req *types.ListSubUserReq) (resp *types.L
 			CreateTime:        subUser.CreateTime,
 			Status:            subUser.Status,
 		}
+
+		pop, ok := l.svcCtx.Pops[subUser.PopID]
+		if ok {
+			user.AreaName = pop.Name
+		}
+
 		users = append(users, user)
 		usernames = append(usernames, subUser.Username)
 	}

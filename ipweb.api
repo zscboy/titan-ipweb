@@ -143,6 +143,7 @@ type (
 		Status    string `json:"status"`
 		StartTime int64
 		EndTime   int64
+		AreaName  string `json:"area_name"`
 	}
 	ListSubUserReq {
 		Start int `form:"start"`
