@@ -34,7 +34,7 @@ func (l *ListPopsLogic) ListPops() (resp *types.ListPopsResponse, err error) {
 }
 
 func (l *ListPopsLogic) listPops() (resp *types.ListPopsResponse, err error) {
-	url := fmt.Sprintf("%s/pops", l.svcCtx.Config.IPPMServer)
+	url := fmt.Sprintf("%s/pops", l.svcCtx.Config.IPPMServer.URL)
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)

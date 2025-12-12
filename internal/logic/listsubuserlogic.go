@@ -109,7 +109,7 @@ func (l *ListSubUserLogic) getBaseStatsForUsers(usernames []string) (map[string]
 }
 
 func (l *ListSubUserLogic) getUserBaseStats(username string) (resp *ippmclient.UserBaseStatsResp, err error) {
-	url := fmt.Sprintf("%s/user/stats/base?username=%s", l.svcCtx.Config.IPPMServer, username)
+	url := fmt.Sprintf("%s/user/stats/base?username=%s", l.svcCtx.Config.IPPMServer.URL, username)
 
 	client := &http.Client{}
 	httpReq, err := http.NewRequest("GET", url, nil)

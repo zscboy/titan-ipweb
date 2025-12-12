@@ -66,7 +66,7 @@ func (l *UpdateSubUserStatusLogic) UpdateSubUserStatus(req *types.UpdateSubUserS
 }
 
 func (l *UpdateSubUserStatusLogic) updateSubUserStatus(req *types.UpdateSubUserStatusReq) error {
-	url := fmt.Sprintf("%s/user/startorstop", l.svcCtx.Config.IPPMServer)
+	url := fmt.Sprintf("%s/user/startorstop", l.svcCtx.Config.IPPMServer.URL)
 	startOrStopReq := ippmclient.StartOrStopUserReq{
 		UserName: req.Username,
 	}

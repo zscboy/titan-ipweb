@@ -109,7 +109,7 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 }
 
 func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *types.SubUser, err error) {
-	url := fmt.Sprintf("%s/user/create", l.svcCtx.Config.IPPMServer)
+	url := fmt.Sprintf("%s/user/create", l.svcCtx.Config.IPPMServer.URL)
 	createUserReq := ippmclient.CreateUserReq{
 		UserName:          req.Username,
 		Password:          req.Password,

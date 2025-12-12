@@ -65,7 +65,7 @@ func (l *DeleteSubUserLogic) DeleteSubUser(req *types.DeleteSubUserReq) error {
 }
 
 func (l *DeleteSubUserLogic) deleteSubUser(req *types.DeleteSubUserReq) error {
-	url := fmt.Sprintf("%s/user/delete", l.svcCtx.Config.IPPMServer)
+	url := fmt.Sprintf("%s/user/delete", l.svcCtx.Config.IPPMServer.URL)
 	deleteUserReq := ippmclient.DeleteUserReq{
 		UserName: req.Username,
 	}

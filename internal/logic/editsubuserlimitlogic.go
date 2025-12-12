@@ -91,7 +91,7 @@ func (l *EditSubUserLimitLogic) EditSubUserLimit(req *types.EditSubUserLimitReq)
 }
 
 func (l *EditSubUserLimitLogic) editSubUserLimit(req *types.EditSubUserLimitReq, subUser *model.SubUser) error {
-	url := fmt.Sprintf("%s/user/modify", l.svcCtx.Config.IPPMServer)
+	url := fmt.Sprintf("%s/user/modify", l.svcCtx.Config.IPPMServer.URL)
 	modifyUserReq := ippmclient.ModifyUserReq{
 		UserName: req.Username,
 	}

@@ -84,7 +84,7 @@ func (l *DeprecatedSubUserLogic) DeprecatedSubUser(req *types.DeprecatedSubUserR
 }
 
 func (l *DeprecatedSubUserLogic) deprecatedSubUser(req *types.DeprecatedSubUserReq) error {
-	url := fmt.Sprintf("%s/user/delete", l.svcCtx.Config.IPPMServer)
+	url := fmt.Sprintf("%s/user/delete", l.svcCtx.Config.IPPMServer.URL)
 	deleteUserReq := ippmclient.DeleteUserReq{
 		UserName: req.Username,
 	}

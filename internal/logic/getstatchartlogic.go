@@ -141,7 +141,7 @@ func (l *GetStatChartLogic) GetStatChart(req *types.StatChartReq) (resp *types.S
 }
 
 func (l *GetStatChartLogic) getStatChartForSingleUser(req *types.StatChartReq, username string) (resp *types.StatChartResponse, err error) {
-	url := fmt.Sprintf("%s/user/stats/chart?type=%s&username=%s&start_time=%d&end_time=%d", l.svcCtx.Config.IPPMServer, req.Type, username, req.StartTime, req.EndTime)
+	url := fmt.Sprintf("%s/user/stats/chart?type=%s&username=%s&start_time=%d&end_time=%d", l.svcCtx.Config.IPPMServer.URL, req.Type, username, req.StartTime, req.EndTime)
 
 	client := &http.Client{}
 	httpReq, err := http.NewRequest("GET", url, nil)
