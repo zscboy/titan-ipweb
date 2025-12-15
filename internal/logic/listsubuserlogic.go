@@ -64,9 +64,11 @@ func (l *ListSubUserLogic) ListSubUser(req *types.ListSubUserReq) (resp *types.L
 			Status:            subUser.Status,
 		}
 
-		pop, ok := l.svcCtx.Pops[subUser.PopID]
-		if ok {
+		pop, err := l.svcCtx.PopManager.Get(subUser.PopID)
+		if err == nil {
 			user.AreaName = pop.Name
+		} else {
+			logx.Debugf("get pop %v", err.Error())
 		}
 
 		users = append(users, user)

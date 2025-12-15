@@ -61,6 +61,18 @@ func (l *DeleteSubUserLogic) DeleteSubUser(req *types.DeleteSubUserReq) error {
 		return err
 	}
 
+	user, err := model.GetUser(l.svcCtx.Redis, autCtxValue.UserId)
+	if err != nil {
+		return err
+	}
+
+	user.MaxBandwidthAllocated -= subUser.MaxBandwidthLimit
+	user.TotalTrafficAllocated -= subUser.TotalTrafficLimit
+
+	if err := model.SaveUser(l.svcCtx.Redis, user); err != nil {
+		return err
+	}
+
 	return model.RemoveSubUser(l.svcCtx.Redis, autCtxValue.UserId, req.Username)
 }
 

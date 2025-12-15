@@ -14,6 +14,7 @@ type Config struct {
 	// IP pop manager server
 	IPPMServer IPPMServer
 	Quota      Quota
+	RunMode    string `json:",default=prod"` // dev / test / prod
 }
 
 type TokenAuth struct {

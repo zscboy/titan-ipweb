@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"titan-ipweb/internal/constant"
 	"titan-ipweb/internal/middleware"
 	"titan-ipweb/internal/svc"
 	"titan-ipweb/internal/types"
@@ -18,16 +19,17 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-const RouteModeCustom = 4
-
 type CreateSubUserLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func createSubUsername(index int64, username string) string {
-	return fmt.Sprintf("%05d_%s", index, username)
+func genSubUserName(env string, index int64, username string) string {
+	if env == constant.RunModeProd {
+		return fmt.Sprintf("%05d_%s", index, username)
+	}
+	return fmt.Sprintf("test_%05d_%s", index, username)
 }
 
 // 创建socks5用户
@@ -64,7 +66,7 @@ func (l *CreateSubUserLogic) CreateSubUser(req *types.CreateSubUserReq) (resp *t
 		return nil, fmt.Errorf("not enough bandwidth allocate for user %s", req.Username)
 	}
 
-	req.Username = createSubUsername(user.Index, req.Username)
+	req.Username = genSubUserName(l.svcCtx.Config.RunMode, user.Index, req.Username)
 
 	sUser, err := model.GetSubUser(l.svcCtx.Redis, req.Username)
 	if err != nil {
@@ -114,7 +116,7 @@ func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *t
 		UserName:          req.Username,
 		Password:          req.Password,
 		PopId:             req.PopId,
-		Route:             &ippmclient.Route{Mode: RouteModeCustom},
+		Route:             &ippmclient.Route{Mode: constant.RouteModeCustom},
 		UploadRateLimit:   req.UploadRateLimit,
 		DownloadRateLimit: req.DownloadRateLimit,
 	}
@@ -179,9 +181,11 @@ func (l *CreateSubUserLogic) createSubUser(req *types.CreateSubUserReq) (resp *t
 }
 
 func (l *CreateSubUserLogic) getSocks5Addrss(popID string) string {
-	pop, ok := l.svcCtx.Pops[popID]
-	if ok {
+	pop, err := l.svcCtx.PopManager.Get(popID)
+	if err == nil {
 		return pop.Socks5Server
 	}
+
+	logx.Debugf("get pop faild:%v", err)
 	return ""
 }

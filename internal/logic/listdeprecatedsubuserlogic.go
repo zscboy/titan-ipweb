@@ -39,7 +39,7 @@ func (l *ListDeprecatedSubUserLogic) ListDeprecatedSubUser(req *types.ListDeprec
 		return nil, err
 	}
 
-	subUsers, err := model.GetInvalidSubUsers(context.Background(), l.svcCtx.Redis, autCtxValue.UserId, req.Start, req.End)
+	subUsers, err := model.GetDeprecatedSubUsers(context.Background(), l.svcCtx.Redis, autCtxValue.UserId, req.Start, req.End)
 	if err != nil {
 		return nil, err
 	}
@@ -59,9 +59,11 @@ func (l *ListDeprecatedSubUserLogic) ListDeprecatedSubUser(req *types.ListDeprec
 			Status:            subUser.Status,
 		}
 
-		pop, ok := l.svcCtx.Pops[subUser.PopID]
-		if ok {
+		pop, err := l.svcCtx.PopManager.Get(subUser.PopID)
+		if err == nil {
 			user.AreaName = pop.Name
+		} else {
+			logx.Debugf("get pop %v", err.Error())
 		}
 
 		users = append(users, user)

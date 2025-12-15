@@ -62,7 +62,7 @@ func (l *DeprecatedSubUserLogic) DeprecatedSubUser(req *types.DeprecatedSubUserR
 		return err
 	}
 
-	if err := model.AddSubUserToInvalidList(l.svcCtx.Redis, autCtxValue.UserId, req.Username); err != nil {
+	if err := model.AddSubUserToDeprecatedList(l.svcCtx.Redis, autCtxValue.UserId, req.Username); err != nil {
 		return err
 	}
 
